@@ -1,0 +1,6 @@
+# Build
+build/*
+dist/*
+
+# Lock file
+package-lock.json

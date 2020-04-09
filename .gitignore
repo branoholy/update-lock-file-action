@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build
+build/
+
+# Lint Staged
+.lint-staged-temp-tsconfig.json
+
+# Misc
+etc/

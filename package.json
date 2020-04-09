@@ -1,0 +1,52 @@
+{
+  "name": "update-lock-file-action",
+  "version": "0.1.0",
+  "description": "An action for updating package-lock.json and yarn.lock files.",
+  "author": "Branislav Holý <branoholy@gmail.com>",
+  "repository": "git@github.com/branoholy/branoholy-com.git",
+  "bugs": {
+    "url": "https://github.com/branoholy/update-lock-file-action/issues"
+  },
+  "homepage": "https://github.com/branoholy/update-lock-file-action#readme",
+  "license": "MIT",
+  "engines": {
+    "node": "13.12.0"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel src/ --extensions '.ts,.tsx' --out-dir dist/",
+    "lint": "eslint 'src/**'",
+    "lint:fix": "npm run lint -- --fix",
+    "lint:all": "eslint '**'",
+    "lint:staged": "lint-staged",
+    "type-check": "tsc",
+    "type-check:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "@babel/preset-typescript": "7.9.0",
+    "@types/node": "13.11.1",
+    "@typescript-eslint/parser": "2.27.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.1",
+    "eslint-plugin-import": "2.20.2",
+    "eslint-plugin-json": "2.1.1",
+    "eslint-plugin-markdown": "1.0.2",
+    "eslint-plugin-prettier": "3.1.2",
+    "eslint-plugin-simple-import-sort": "5.0.2",
+    "husky": "4.2.5",
+    "lint-staged": "10.1.3",
+    "prettier": "2.0.4",
+    "ts-node": "8.8.2",
+    "typescript": "3.8.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "post-commit": "rm -f .lint-staged-temp-tsconfig.json",
+      "prepare-commit-msg": "ts-node -O '{\"module\":\"commonjs\"}' hooks/prepare-commit-msg.ts $HUSKY_GIT_PARAMS"
+    }
+  }
+}
