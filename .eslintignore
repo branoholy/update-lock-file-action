@@ -4,3 +4,6 @@ dist/*
 
 # Lock file
 package-lock.json
+
+# YAML files
+action.yaml
