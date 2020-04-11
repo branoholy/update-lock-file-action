@@ -1,7 +1,7 @@
 name: Update Lock File Action
 description: An action for updating package-lock.json and yarn.lock files.
 runs:
-  using: node
+  using: node12
   main: dist/index.js
 branding:
   icon: refresh-cw
