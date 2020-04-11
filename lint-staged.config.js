@@ -9,11 +9,7 @@ const toRelative = (filename) => relative('.', filename);
 const mapToRelative = (filenames) => filenames.map(toRelative);
 
 module.exports = {
-  '**': (filenames) => {
-    const relativeFilenames = mapToRelative(filenames);
-
-    return `eslint ${relativeFilenames.join(' ')}`;
-  },
+  '**': (filenames) => `eslint ${mapToRelative(filenames).join(' ')}`,
   '**/*.ts?(x)': (filenames) => {
     // The lint-staged command runs this function multiple times to prepare
     // console messages. We want to save the temporary tsconfig.json file only
@@ -29,5 +25,6 @@ module.exports = {
     }
 
     return `tsc -p ${tsconfigPath}`;
-  }
+  },
+  '**/*.yaml': (filenames) => `prettier --check ${mapToRelative(filenames).join(' ')}`
 };
