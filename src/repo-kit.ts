@@ -1,20 +1,16 @@
-import { Octokit } from '@octokit/rest';
+import { GitHub } from '@actions/github';
 import btoa from 'btoa';
 import { readFileSync } from 'fs';
 
 export class RepoKit {
-  private octokit: Octokit;
+  private gitHub: GitHub;
 
-  constructor(private owner: string, private repositoryName: string, token?: string) {
-    this.octokit = new Octokit({
-      auth: token
-    });
+  constructor(private owner: string, private repositoryName: string, token: string) {
+    this.gitHub = new GitHub(token);
   }
 
   setToken(token: string) {
-    this.octokit = new Octokit({
-      auth: token
-    });
+    this.gitHub = new GitHub(token);
   }
 
   async hasBranch(branchName: string) {
@@ -28,7 +24,7 @@ export class RepoKit {
   }
 
   async getBranch(branchName: string) {
-    const { data } = await this.octokit.git.getRef({
+    const { data } = await this.gitHub.git.getRef({
       owner: this.owner,
       repo: this.repositoryName,
       ref: `heads/${branchName}`
@@ -38,7 +34,7 @@ export class RepoKit {
   }
 
   async createBranch(branchName: string, sha: string) {
-    const { data } = await this.octokit.git.createRef({
+    const { data } = await this.gitHub.git.createRef({
       owner: this.owner,
       repo: this.repositoryName,
       ref: `refs/heads/${branchName}`,
@@ -49,7 +45,7 @@ export class RepoKit {
   }
 
   async deleteBranch(branchName: string) {
-    await this.octokit.git.deleteRef({
+    await this.gitHub.git.deleteRef({
       owner: this.owner,
       repo: this.repositoryName,
       ref: `heads/${branchName}`
@@ -57,7 +53,7 @@ export class RepoKit {
   }
 
   async getFileInfo(path: string, branchName?: string) {
-    const { data } = await this.octokit.repos.getContents({
+    const { data } = await this.gitHub.repos.getContents({
       owner: this.owner,
       repo: this.repositoryName,
       path,
@@ -65,7 +61,7 @@ export class RepoKit {
     });
 
     if (Array.isArray(data)) {
-      throw new Error('Requested path is a directory');
+      throw new Error('The requested path is a directory');
     }
 
     return data;
@@ -83,7 +79,7 @@ export class RepoKit {
 
   async commitFile(
     path: string,
-    message: string,
+    commitMessage: string,
     branchName?: string,
     fromBranchName = branchName,
     destinationPath = path
@@ -91,13 +87,13 @@ export class RepoKit {
     const { fileInfo } = await this.tryGetFileInfo(path, fromBranchName);
     const sha = fileInfo?.sha;
 
-    const { data } = await this.octokit.repos.createOrUpdateFile({
+    const { data } = await this.gitHub.repos.createOrUpdateFile({
       owner: this.owner,
       repo: this.repositoryName,
       branch: branchName,
       path: destinationPath,
       sha,
-      message,
+      message: commitMessage,
       content: btoa(readFileSync(path))
     });
 
@@ -105,7 +101,7 @@ export class RepoKit {
   }
 
   async createPullRequest(branchName: string, baseBranchName: string, title: string, body?: string) {
-    const { data } = await this.octokit.pulls.create({
+    const { data } = await this.gitHub.pulls.create({
       owner: this.owner,
       repo: this.repositoryName,
       base: baseBranchName,
