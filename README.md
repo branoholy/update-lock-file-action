@@ -8,21 +8,21 @@ _An action for updating package-lock.json and yarn.lock files._
 
 ```yaml
 uses: branoholy/update-lock-file-action
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+with:
+  github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Usage with all arguments
 
 ```yaml
 uses: branoholy/update-lock-file-action
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  BRANCH_NAME: update-lock-file
-  COMMIT_MESSAGE: Update lock file
-  PULL_REQUEST_TITLE: Update lock file
-  PULL_REQUEST_BODY: ''
-  PULL_REQUEST_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+with:
+  github-token: ${{ secrets.GITHUB_TOKEN }}
+  branch-name: update-lock-file
+  commit-message: Update lock file
+  pull-request-title: Update lock file
+  pull-request-body: ''
+  pull-request-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Environment variables

@@ -2,8 +2,8 @@ import { execSync } from 'child_process';
 import { unlinkSync } from 'fs';
 
 import { getDependencyManager } from './dependency-manager';
-import { isFileChanged } from './file-utils';
 import { RepoKit } from './repo-kit';
+import { isFileChanged } from './utils/file-utils';
 
 export interface MainArgs {
   readonly owner: string;
