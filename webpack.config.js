@@ -30,6 +30,7 @@ module.exports = (env) => ({
   target: 'node',
   entry: path.resolve(__dirname, 'src/index.ts'),
   output: {
+    path: path.resolve(__dirname, 'build/'),
     filename: 'index.js'
   },
   resolve: {
