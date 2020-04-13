@@ -1,0 +1,37 @@
+version: 1
+update_configs:
+  - package_manager: javascript
+    directory: /
+    update_schedule: live
+    default_reviewers:
+      - branoholy
+    version_requirement_updates: increase_versions
+    commit_message:
+      prefix: DEPS
+    automerged_updates:
+      # Babel (build job)
+      - match:
+          dependency_name: '@babel/*'
+      # ESLint (lint job)
+      - match:
+          dependency_name: '@typescript-eslint/parser'
+      - match:
+          dependency_name: 'eslint'
+      - match:
+          dependency_name: 'eslint-config-*'
+      - match:
+          dependency_name: 'eslint-plugin-*'
+      - match:
+          dependency_name: 'prettier'
+      # TypeScript (type-check job)
+      - match:
+          dependency_name: '@types/*'
+      - match:
+          dependency_name: 'typescript'
+      # Webpack (build job)
+      - match:
+          dependency_name: 'babel-loader'
+      - match:
+          dependency_name: 'webpack'
+      - match:
+          dependency_name: 'webpack-cli'
