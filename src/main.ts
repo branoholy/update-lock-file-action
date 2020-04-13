@@ -42,11 +42,11 @@ export const main = async ({
     const dependencyManager = getDependencyManager();
 
     if (!dependencyManager) {
-      console.log('Lock file not found');
+      console.info('Lock file not found');
       return 0;
     }
 
-    console.log(`Found ${dependencyManager.lockFilePath}`);
+    console.info(`Found "${dependencyManager.lockFilePath}"`);
 
     // Recreate the lock file
     unlinkSync(dependencyManager.lockFilePath);
@@ -54,11 +54,11 @@ export const main = async ({
 
     // Check if the lock file is up to date
     if (!isFileChanged(dependencyManager.lockFilePath)) {
-      console.log('Lock file is up to date');
+      console.info('Lock file is up to date');
       return 0;
     }
 
-    console.log('Lock file is outdated');
+    console.info('Lock file is outdated');
 
     // Commit the lock file and create a pull request
     const [owner, repositoryName] = repository.split('/');
@@ -66,10 +66,10 @@ export const main = async ({
 
     // Delete the branch if it exists
     if (await repoKit.hasBranch(branch)) {
-      console.log(`Branch ${branch} already exists`);
-      console.log(`Deleting branch ${branch}...`);
+      console.info(`Branch "${branch}" already exists`);
+      console.info(`Deleting branch "${branch}"...`);
       await repoKit.deleteBranch(branch);
-      console.log(`Branch ${branch} has been deleted`);
+      console.info(`Branch "${branch}" has been deleted`);
     }
 
     // Create the branch
@@ -79,7 +79,7 @@ export const main = async ({
     } = await repoKit.getDefaultBranch();
 
     await repoKit.createBranch(branch, defaultBranchSha);
-    console.log(`Branch ${branch} has been created`);
+    console.info(`Branch "${branch}" has been created`);
 
     // Commit the lock file
     const commitFile = (kit: RepoKit) =>
@@ -96,7 +96,7 @@ export const main = async ({
       await commitFile(repoKit);
     }
 
-    console.log('Updated lock file has been committed');
+    console.info('Updated lock file has been committed');
 
     // Create the pull request
     const pullRequest = await repoKit.createPullRequest({
@@ -112,9 +112,9 @@ export const main = async ({
       draft: draft === 'true'
     });
 
-    console.log(`Pull request has been created at ${pullRequest.html_url}`);
+    console.info(`Pull request has been created at ${pullRequest.html_url}`);
   } catch (error) {
-    console.log(error);
+    console.info(error);
     return 1;
   }
 

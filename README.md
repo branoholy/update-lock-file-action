@@ -2,6 +2,8 @@
 
 _An action for updating package-lock.json and yarn.lock files._
 
+This GitHub action checks if your lock file is outdated and creates a pull request with the updated lock file. Both NPM (`package-lock.json`) and Yarn (`yarn.lock`) lock files are supported.
+
 ## Usage
 
 ### Basic usage
@@ -33,6 +35,8 @@ with:
 
 ### Example of workflow
 
+The following workflow runs this action when `package-lock.json` is updated. This happens when a new dependency is installed or updated (for example by a tool like Dependabot).
+
 ```yaml
 name: Update lock file
 
@@ -60,7 +64,7 @@ jobs:
 
 ## Inputs
 
-- `token`: A token for committing the updated lock file and creating the pull request (default: `process.env.GITHUB_TOKEN`).
+- `token`: A token for committing the updated lock file and creating the pull request (required).
 - `branch`: A custom branch name (default: `'update-lock-file'`).
 - `commit-message`: A custom commit message (default: `'Update lock file'`).
 - `commit-token`: A token that will be used to commit the lock file instead of `token` (default: `token`).
