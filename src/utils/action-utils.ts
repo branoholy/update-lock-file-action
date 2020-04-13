@@ -32,5 +32,3 @@ export function getInput(name: string, options?: InputOptions) {
 
   return input;
 }
-
-export const hasInput = (name: string) => !!core.getInput(name);

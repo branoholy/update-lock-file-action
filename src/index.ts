@@ -1,17 +1,16 @@
-import env from 'env-var';
+import envalid from 'envalid';
 
 import { main } from './main';
-import { getInput, hasInput } from './utils/action-utils';
+import { getInput } from './utils/action-utils';
 
 try {
-  const repository = env.get('GITHUB_REPOSITORY').required().asString();
-  const token = getInput('token', {
-    default: env.get('GITHUB_TOKEN').required(!hasInput('token')).asString()
+  const requiredEnv = envalid.cleanEnv(process.env, {
+    GITHUB_REPOSITORY: envalid.str()
   });
 
   main({
-    repository,
-    token,
+    repository: requiredEnv.GITHUB_REPOSITORY,
+    token: getInput('token', { required: true }),
     branch: getInput('branch'),
     commitMessage: getInput('commit-message'),
     commitToken: getInput('commit-token'),
