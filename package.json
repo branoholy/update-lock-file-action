@@ -1,7 +1,7 @@
 {
   "name": "update-lock-file-action",
   "version": "0.1.0",
-  "description": "An action for updating package-lock.json and yarn.lock files.",
+  "description": "A GitHub action for updating lock files.",
   "author": "Branislav Holý <branoholy@gmail.com>",
   "repository": "git@github.com/branoholy/branoholy-com.git",
   "bugs": {
