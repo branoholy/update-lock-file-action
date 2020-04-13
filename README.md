@@ -1,6 +1,6 @@
 # Update Lock File Action
 
-_An action for updating package-lock.json and yarn.lock files._
+_A GitHub action for updating lock files._
 
 This GitHub action checks if your lock file is outdated and creates a pull request with the updated lock file. Both NPM (`package-lock.json`) and Yarn (`yarn.lock`) lock files are supported.
 
