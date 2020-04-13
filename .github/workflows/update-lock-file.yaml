@@ -1,0 +1,28 @@
+name: Update lock file
+
+on:
+  push:
+    branches: develop
+    paths: package-lock.json
+
+jobs:
+  update-lock-file:
+    name: Update lock file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.1.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v1.4.0
+        with:
+          node-version: 13.12.0
+      - name: Update lock file
+        uses: branoholy/update-lock-file-action@develop
+        with:
+          token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          branch: deps-update-lock-file
+          commit-message: 'DEPS: Update lock file'
+          commit-token: ${{ secrets.GITHUB_TOKEN }}
+          body: Automatic update of dependencies in `package-lock.json`.
+          labels: dependencies
+          reviewers: branoholy
