@@ -8,6 +8,8 @@ _An action for updating package-lock.json and yarn.lock files._
 
 ```yaml
 uses: branoholy/update-lock-file-action
+with:
+  token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Usage with all arguments
@@ -52,6 +54,8 @@ jobs:
           node-version: 13.12.0
       - name: Update lock file
         uses: branoholy/update-lock-file-action
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Inputs

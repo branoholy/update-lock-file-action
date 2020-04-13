@@ -35,6 +35,8 @@ jobs:
           node-version: 13.12.0
       - name: Update lock file
         uses: branoholy/update-lock-file-action
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Current behavior
