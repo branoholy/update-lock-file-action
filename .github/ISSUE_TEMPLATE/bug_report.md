@@ -23,7 +23,7 @@ on:
     paths: package-lock.json
 
 jobs:
-  update-lock-create-pr:
+  update-lock-file:
     name: Update lock file
     runs-on: ubuntu-latest
     steps:
@@ -34,9 +34,9 @@ jobs:
         with:
           node-version: 13.12.0
       - name: Update lock file
-      - uses: branoholy/update-lock-file-action
+        uses: branoholy/update-lock-file-action
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Current behavior

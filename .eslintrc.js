@@ -8,11 +8,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module'
   },
-  extends: [
-    'eslint:recommended',
-    'plugin:prettier/recommended',
-    'plugin:json/recommended-with-comments'
-  ],
+  extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:json/recommended-with-comments'],
   plugins: ['import', 'simple-import-sort', 'markdown'],
   rules: {
     'no-dupe-class-members': 'off',
@@ -29,6 +25,6 @@ module.exports = {
     'import/no-unassigned-import': 'error',
     'import/order': 'off',
 
-    'simple-import-sort/sort': 'error',
+    'simple-import-sort/sort': 'error'
   }
 };
