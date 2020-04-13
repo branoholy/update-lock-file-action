@@ -144,20 +144,24 @@ export class RepoKit {
       draft
     });
 
-    await this.octokit.pulls.createReviewRequest({
-      ...this.getRepositoryInfo(),
-      pull_number: data.number,
-      reviewers,
-      team_reviewers: teamReviewers
-    });
+    if (reviewers || teamReviewers) {
+      await this.octokit.pulls.createReviewRequest({
+        ...this.getRepositoryInfo(),
+        pull_number: data.number,
+        reviewers,
+        team_reviewers: teamReviewers
+      });
+    }
 
-    await this.octokit.issues.update({
-      ...this.getRepositoryInfo(),
-      issue_number: data.number,
-      labels,
-      assignees,
-      milestone
-    });
+    if (labels || assignees || milestone) {
+      await this.octokit.issues.update({
+        ...this.getRepositoryInfo(),
+        issue_number: data.number,
+        labels,
+        assignees,
+        milestone
+      });
+    }
 
     return data;
   }
