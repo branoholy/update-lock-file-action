@@ -1,25 +1,32 @@
-# Update Lock File Action
+# Update Files Action
 
-_A GitHub action for updating lock files._
+_A GitHub action for updating files._
 
-This GitHub action checks if your lock file is outdated and creates a pull request with the updated lock file. Both NPM (`package-lock.json`) and Yarn (`yarn.lock`) lock files are supported.
+This GitHub action can update files via custom commands and create a pull request with them.
 
 ## Usage
 
 ### Basic usage
 
+This example updates `package-lock.json` by executing `npm i`.
+
 ```yaml
-uses: branoholy/update-lock-file-action
+uses: branoholy/update-files-action
 with:
   token: ${{ secrets.GITHUB_TOKEN }}
+  commands: 'npm i'
+  paths: package-lock.json
 ```
 
 ### Usage with all arguments
 
 ```yaml
-uses: branoholy/update-lock-file-action
+uses: branoholy/update-files-action
 with:
   token: ${{ secrets.GITHUB_TOKEN }}
+  commands: 'command-1, command-2'
+  paths: 'path/to/file/a.txt, path/to/file/b.txt, path/to/file/c.txt'
+  keep-files: 'path/to/file/a.txt, path/to/file/b.txt'
   branch: branch-name
   commit-message: Commit message
   commit-token: ${{ secrets.ANOTHER_TOKEN }}
@@ -35,7 +42,7 @@ with:
 
 ### Example of workflow
 
-The following workflow runs this action when `package-lock.json` is updated. This happens when a new dependency is installed or updated (for example by a tool like Dependabot).
+The following workflow runs this action to update `package-lock.json` when it was updated by something else. This happens when a new dependency is installed or updated (for example by a tool like Dependabot).
 
 ```yaml
 name: Update lock file
@@ -57,17 +64,22 @@ jobs:
         with:
           node-version: 13.12.0
       - name: Update lock file
-        uses: branoholy/update-lock-file-action
+        uses: branoholy/update-files-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          commands: 'npm i'
+          paths: package-lock.json
 ```
 
 ## Inputs
 
-- `token`: A token for committing the updated lock file and creating the pull request (required).
-- `branch`: A custom branch name (default: `'update-lock-file'`).
-- `commit-message`: A custom commit message (default: `'Update lock file'`).
-- `commit-token`: A token that will be used to commit the lock file instead of `token` (default: `token`).
+- `token`: A token for committing the updated files and creating the pull request (required).
+- `commands`: A comma-separated list of commands to generate the files specified in `paths` (required).
+- `paths`: A comma-separated list of paths to delete and commit if they were changed (required).
+- `keep-paths`: A comma-separated list of paths that should not be deleted (default: `''`).
+- `branch`: A custom branch name (default: `'update-files'`).
+- `commit-message`: A custom commit message (default: `'Update files'`).
+- `commit-token`: A token that will be used to commit the files instead of `token` (default: `token`).
 - `title`: A custom pull request title (default: `commit-message`).
 - `body`: A custom pull request body (default: `''`).
 - `labels`: A comma-separated list of labels (default: `''`).

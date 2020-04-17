@@ -1,7 +1,6 @@
 import { execSync } from 'child_process';
 import { unlinkSync } from 'fs';
 
-import { getDependencyManager } from './dependency-manager';
 import { RepoKit } from './repo-kit';
 import { isFileChanged } from './utils/file-utils';
 import { parseList } from './utils/string-utils';
@@ -9,6 +8,9 @@ import { parseList } from './utils/string-utils';
 export interface MainArgs {
   readonly repository: string;
   readonly token: string;
+  readonly commands: string;
+  readonly paths: string;
+  readonly keepPaths?: string;
   readonly branch?: string;
   readonly commitMessage?: string;
   readonly commitToken?: string;
@@ -25,8 +27,11 @@ export interface MainArgs {
 export const main = async ({
   repository,
   token,
-  branch = 'update-lock-file',
-  commitMessage = 'Update lock file',
+  commands,
+  paths: pathList,
+  keepPaths: keepPathList,
+  branch = 'update-files',
+  commitMessage = 'Update files',
   commitToken,
   title = commitMessage,
   body = '',
@@ -38,29 +43,40 @@ export const main = async ({
   draft
 }: MainArgs) => {
   try {
-    // Find a lock file along with the corresponding dependency manager
-    const dependencyManager = getDependencyManager();
+    // Remove files if possible
+    const paths = parseList(pathList);
+    const keepPaths = parseList(keepPathList);
 
-    if (!dependencyManager) {
-      console.info('Lock file not found');
+    paths.forEach((path) => {
+      if (keepPaths?.includes(path)) {
+        console.info(`File "${path}" is kept`);
+      } else {
+        unlinkSync(path);
+        console.info(`File "${path}" has been removed`);
+      }
+    });
+
+    // Run commands
+    parseList(commands).forEach((command) => {
+      execSync(command);
+    });
+
+    // Find changed files
+    const changedPaths = paths.reduce<string[]>((acc, path) => {
+      if (isFileChanged(path)) {
+        console.info(`File "${path}" is changed`);
+        return [...acc, path];
+      }
+
+      return acc;
+    }, []);
+
+    if (changedPaths.length === 0) {
+      console.info(`No file has been changed`);
       return 0;
     }
 
-    console.info(`Found "${dependencyManager.lockFilePath}"`);
-
-    // Recreate the lock file
-    unlinkSync(dependencyManager.lockFilePath);
-    execSync(dependencyManager.installCommand);
-
-    // Check if the lock file is up to date
-    if (!isFileChanged(dependencyManager.lockFilePath)) {
-      console.info('Lock file is up to date');
-      return 0;
-    }
-
-    console.info('Lock file is outdated');
-
-    // Commit the lock file and create a pull request
+    // Commit the changed files and create a pull request
     const [owner, repositoryName] = repository.split('/');
     const repoKit = new RepoKit(owner, repositoryName, token);
 
@@ -81,22 +97,22 @@ export const main = async ({
     await repoKit.createBranch(branch, defaultBranchSha);
     console.info(`Branch "${branch}" has been created`);
 
-    // Commit the lock file
-    const commitFile = (kit: RepoKit) =>
-      kit.commitFile({
-        path: dependencyManager.lockFilePath,
+    // Commit the changed files
+    const commitFiles = (kit: RepoKit) =>
+      kit.commitFiles({
+        paths: changedPaths,
         commitMessage,
         branch,
         baseBranch: defaultBranchName
       });
 
     if (commitToken) {
-      await repoKit.withToken(commitToken, commitFile);
+      await repoKit.withToken(commitToken, commitFiles);
     } else {
-      await commitFile(repoKit);
+      await commitFiles(repoKit);
     }
 
-    console.info('Updated lock file has been committed');
+    console.info('Changed files have been committed');
 
     // Create the pull request
     const pullRequest = await repoKit.createPullRequest({

@@ -11,7 +11,7 @@ jobs:
       (
         github.event_name == 'pull_request' &&
         github.event.pull_request.user.login == 'branoholy-bot' &&
-        github.head_ref == 'deps-update-lock-file'
+        (github.head_ref == 'deps-update-lock-file' || github.head_ref == 'build-update-dist')
       )
     steps:
       - name: Checkout
@@ -93,27 +93,5 @@ jobs:
           key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - name: Lint files
         run: npm run lint:all
-        env:
-          CI: true
-
-  dist-check:
-    name: Check dist
-    runs-on: ubuntu-latest
-    needs: install
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2.1.0
-      - name: Setup Node.js
-        uses: actions/setup-node@v1.4.0
-        with:
-          node-version: 13.12.0
-      - name: Cache or restore dependencies
-        id: cache-dependencies
-        uses: actions/cache@v1.1.2
-        with:
-          path: node_modules
-          key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Check dist
-        run: npm run dist-check
         env:
           CI: true
