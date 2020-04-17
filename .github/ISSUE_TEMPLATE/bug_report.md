@@ -34,9 +34,11 @@ jobs:
         with:
           node-version: 13.12.0
       - name: Update lock file
-        uses: branoholy/update-lock-file-action
+        uses: branoholy/update-files-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          commands: 'npm i'
+          paths: package-lock.json
 ```
 
 ## Current behavior

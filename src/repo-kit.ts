@@ -2,12 +2,11 @@ import { Octokit } from '@octokit/rest';
 import btoa from 'btoa';
 import { readFileSync } from 'fs';
 
-export interface CommitFileArgs {
-  readonly path: string;
+export interface CommitFilesArgs {
+  readonly paths: string[];
   readonly commitMessage: string;
-  readonly branch?: string;
+  readonly branch: string;
   readonly baseBranch?: string;
-  readonly destinationPath?: string;
 }
 
 export interface CreatePullRequestArgs {
@@ -107,20 +106,51 @@ export class RepoKit {
     }
   }
 
-  async commitFile({ path, commitMessage, branch, baseBranch = branch, destinationPath = path }: CommitFileArgs) {
-    const { fileInfo } = await this.tryGetFileInfo(path, baseBranch);
-    const sha = fileInfo?.sha;
+  async commitFiles({ paths, commitMessage, branch, baseBranch = branch }: CommitFilesArgs) {
+    const {
+      object: { sha: baseBranchSha }
+    } = await this.getBranch(baseBranch);
 
-    const { data } = await this.octokit.repos.createOrUpdateFile({
+    const encoding = 'base64';
+    const type: 'blob' = 'blob';
+    const mode: '100644' = '100644';
+
+    const treeBlobs = await Promise.all(
+      paths.map(async (path) => {
+        const {
+          data: { sha: blobSha }
+        } = await this.octokit.git.createBlob({
+          ...this.getRepositoryInfo(),
+          content: btoa(readFileSync(path)),
+          encoding
+        });
+
+        return { type, mode, path, sha: blobSha };
+      })
+    );
+
+    const {
+      data: { sha: treeSha }
+    } = await this.octokit.git.createTree({
       ...this.getRepositoryInfo(),
-      branch,
-      path: destinationPath,
-      sha,
-      message: commitMessage,
-      content: btoa(readFileSync(path))
+      tree: treeBlobs,
+      base_tree: baseBranchSha
     });
 
-    return data;
+    const { data: commit } = await this.octokit.git.createCommit({
+      ...this.getRepositoryInfo(),
+      parents: [baseBranchSha],
+      tree: treeSha,
+      message: commitMessage
+    });
+
+    await this.octokit.git.updateRef({
+      ...this.getRepositoryInfo(),
+      ref: `heads/${branch}`,
+      sha: commit.sha
+    });
+
+    return commit;
   }
 
   async createPullRequest({

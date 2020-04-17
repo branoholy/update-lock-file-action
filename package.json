@@ -1,13 +1,13 @@
 {
-  "name": "update-lock-file-action",
+  "name": "update-files-action",
   "version": "0.1.0",
-  "description": "A GitHub action for updating lock files.",
+  "description": "A GitHub action for updating files.",
   "author": "Branislav Holý <branoholy@gmail.com>",
   "repository": "git@github.com/branoholy/branoholy-com.git",
   "bugs": {
-    "url": "https://github.com/branoholy/update-lock-file-action/issues"
+    "url": "https://github.com/branoholy/update-files-action/issues"
   },
-  "homepage": "https://github.com/branoholy/update-lock-file-action#readme",
+  "homepage": "https://github.com/branoholy/update-files-action#readme",
   "license": "MIT",
   "engines": {
     "node": "13.12.0"
@@ -22,8 +22,7 @@
     "lint:all": "eslint '**' && prettier --check **/*.yaml",
     "lint:staged": "lint-staged",
     "type-check": "tsc",
-    "type-check:watch": "tsc --watch",
-    "dist-check": "npm run build && diff -s build/ dist/"
+    "type-check:watch": "tsc --watch"
   },
   "dependencies": {
     "@actions/core": "1.2.3",

@@ -1,19 +1,28 @@
-name: Update Lock File Action
-description: A GitHub action for updating lock files.
+name: Update Files Action
+description: A GitHub action for updating files.
 inputs:
   token:
-    description: A token for committing the updated lock file and creating the pull request.
+    description: A token for committing the updated files and creating the pull request.
     required: true
+  commands:
+    description: A comma-separated list of commands to generate the files specified in `paths`.
+    required: true
+  paths:
+    description: A comma-separated list of paths to delete and commit if they were changed.
+    required: true
+  keep-paths:
+    description: A comma-separated list of paths that should not be deleted.
+    required: false
   branch:
     description: A custom branch name.
     required: false
-    default: update-lock-file
+    default: update-files
   commit-message:
     description: A custom commit message.
     required: false
-    default: Update lock file
+    default: Update files
   commit-token:
-    description: A token that will be used to commit the lock file instead of `token`.
+    description: A token that will be used to commit the files instead of `token`.
     required: false
     default: ''
   title:

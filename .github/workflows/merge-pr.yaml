@@ -16,3 +16,17 @@ jobs:
           MERGE_LABELS: ''
           UPDATE_LABELS: ''
           GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+
+  merge-dist:
+    name: Merge dist PR
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.user.login == 'branoholy-bot' &&
+      github.head_ref == 'build-update-dist'
+    steps:
+      - name: Merge pull request
+        uses: pascalgn/automerge-action@v0.8.0
+        env:
+          MERGE_LABELS: ''
+          UPDATE_LABELS: ''
+          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
