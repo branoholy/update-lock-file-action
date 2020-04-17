@@ -19,7 +19,7 @@ jobs:
         uses: branoholy/update-files-action@develop
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
-          commands: 'npm run build:dist'
+          commands: 'npm ci, npm run build:dist'
           paths: dist/index.js
           branch: build-update-dist
           commit-message: 'BUILD: Update dist'
