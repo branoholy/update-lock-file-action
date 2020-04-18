@@ -38,10 +38,17 @@ export class RepoKit {
     });
   }
 
-  withToken<T>(token: string, fn: (repoKit: RepoKit) => T | PromiseLike<T>) {
+  withToken<T>(token: string, fn: (repoKit: RepoKit) => T): T {
     const repoKit = new RepoKit(this.owner, this.repositoryName, token);
 
-    return Promise.resolve(fn(repoKit));
+    return fn(repoKit);
+  }
+
+  getRepositoryInfo() {
+    return {
+      owner: this.owner,
+      repo: this.repositoryName
+    };
   }
 
   async hasBranch(name: string) {
@@ -217,12 +224,5 @@ export class RepoKit {
     }
 
     return data;
-  }
-
-  private getRepositoryInfo() {
-    return {
-      owner: this.owner,
-      repo: this.repositoryName
-    };
   }
 }

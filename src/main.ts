@@ -1,150 +1,36 @@
-import { execSync } from 'child_process';
-import { unlinkSync } from 'fs';
+import envalid from 'envalid';
 
-import { CommitArgs, RepoKit } from './repo-kit';
-import { isFileChanged } from './utils/file-utils';
-import { parseList } from './utils/string-utils';
+import { app } from './app';
+import { getInput } from './utils/action-utils';
 
-export interface MainArgs {
-  readonly repository: string;
-  readonly token: string;
-  readonly commands: string;
-  readonly paths: string;
-  readonly keepPaths?: string;
-  readonly branch?: string;
-  readonly commitMessage?: string;
-  readonly commitToken?: string;
-  readonly title?: string;
-  readonly body?: string;
-  readonly labels?: string;
-  readonly assignees?: string;
-  readonly reviewers?: string;
-  readonly teamReviewers?: string;
-  readonly milestone?: string;
-  readonly draft?: string;
-}
-
-export const main = async ({
-  repository,
-  token,
-  commands,
-  paths: pathList,
-  keepPaths: keepPathList,
-  branch = 'update-files',
-  commitMessage = 'Update files',
-  commitToken,
-  title = commitMessage,
-  body = '',
-  labels,
-  assignees,
-  reviewers,
-  teamReviewers,
-  milestone,
-  draft
-}: MainArgs) => {
+export const main = async () => {
   try {
-    // Remove files if possible
-    const paths = parseList(pathList);
-    const keepPaths = parseList(keepPathList);
-
-    paths.forEach((path) => {
-      if (keepPaths?.includes(path)) {
-        console.info(`File "${path}" is kept`);
-      } else {
-        unlinkSync(path);
-        console.info(`File "${path}" has been removed`);
-      }
+    const requiredEnv = envalid.cleanEnv(process.env, {
+      GITHUB_REPOSITORY: envalid.str()
     });
 
-    // Run commands
-    parseList(commands).forEach((command) => {
-      execSync(command);
+    const exitCode = await app({
+      repository: requiredEnv.GITHUB_REPOSITORY,
+      token: getInput('token', { required: true }),
+      commands: getInput('commands', { required: true }),
+      paths: getInput('paths', { required: true }),
+      keepPaths: getInput('keep-paths'),
+      branch: getInput('branch'),
+      commitMessage: getInput('commit-message'),
+      commitToken: getInput('commit-token'),
+      title: getInput('title'),
+      body: getInput('body'),
+      labels: getInput('labels'),
+      assignees: getInput('assignees'),
+      reviewers: getInput('reviewers'),
+      teamReviewers: getInput('team-reviewers'),
+      milestone: getInput('milestone'),
+      draft: getInput('draft')
     });
 
-    // Find changed files
-    const changedPaths = paths.reduce<string[]>((acc, path) => {
-      if (isFileChanged(path)) {
-        console.info(`File "${path}" is changed`);
-        return [...acc, path];
-      }
-
-      return acc;
-    }, []);
-
-    if (changedPaths.length === 0) {
-      console.info(`No file has been changed`);
-      return 0;
-    }
-
-    // Commit the changed files and create a pull request
-    const [owner, repositoryName] = repository.split('/');
-    const repoKit = new RepoKit(owner, repositoryName, token);
-
-    // Delete the branch if it exists
-    if (await repoKit.hasBranch(branch)) {
-      console.info(`Branch "${branch}" already exists`);
-      console.info(`Deleting branch "${branch}"...`);
-      await repoKit.deleteBranch(branch);
-      console.info(`Branch "${branch}" has been deleted`);
-    }
-
-    // Create the branch
-    const {
-      object: { sha: defaultBranchSha },
-      name: defaultBranchName
-    } = await repoKit.getDefaultBranch();
-
-    await repoKit.createBranch(branch, defaultBranchSha);
-    console.info(`Branch "${branch}" has been created`);
-
-    // Commit the changed files
-    const commitFiles = (kit: RepoKit) => {
-      const commitArgs: CommitArgs = {
-        commitMessage,
-        branch,
-        baseBranch: defaultBranchName
-      };
-
-      if (changedPaths.length === 1) {
-        return kit.commitFile({
-          path: changedPaths[0],
-          ...commitArgs
-        });
-      }
-
-      return kit.commitFiles({
-        paths: changedPaths,
-        ...commitArgs
-      });
-    };
-
-    if (commitToken) {
-      await repoKit.withToken<unknown>(commitToken, commitFiles);
-    } else {
-      await commitFiles(repoKit);
-    }
-
-    console.info('Changed files have been committed');
-
-    // Create the pull request
-    const pullRequest = await repoKit.createPullRequest({
-      branch,
-      baseBranch: defaultBranchName,
-      title,
-      body,
-      labels: parseList(labels),
-      assignees: parseList(assignees),
-      reviewers: parseList(reviewers),
-      teamReviewers: parseList(teamReviewers),
-      milestone: milestone ? parseInt(milestone, 10) : undefined,
-      draft: draft === 'true'
-    });
-
-    console.info(`Pull request has been created at ${pullRequest.html_url}`);
+    process.exit(exitCode);
   } catch (error) {
-    console.info(error);
-    return 1;
+    console.error(error.message);
+    process.exit(1);
   }
-
-  return 0;
 };

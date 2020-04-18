@@ -1,3 +1,4 @@
+export function parseList(listString: undefined): undefined;
 export function parseList(listString: string): string[];
 export function parseList(listString: string | undefined): string[] | undefined;
 
