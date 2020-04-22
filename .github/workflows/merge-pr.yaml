@@ -1,32 +1,76 @@
 name: Merge PR
 
-on: pull_request
+on:
+  pull_request_review:
+    types: submitted
+  status: {}
 
 jobs:
-  merge-lock-file:
-    name: Merge lock file PR
+  merge-dependabot:
+    name: Merge Dependabot dependencies
     runs-on: ubuntu-latest
     if: >-
-      github.event.pull_request.user.login == 'branoholy-bot' &&
-      github.head_ref == 'deps-update-lock-file'
+      (
+        github.event_name == 'pull_request_review' &&
+        (
+          github.event.pull_request.user.login == 'dependabot[bot]' ||
+          github.event.pull_request.user.login == 'dependabot-preview[bot]'
+        )
+      ) ||
+      (
+        github.event_name == 'status' &&
+        (
+          github.event.commit.author.login == 'dependabot[bot]' ||
+          github.event.commit.author.login == 'dependabot-preview[bot]'
+        )
+      )
     steps:
       - name: Merge pull request
         uses: pascalgn/automerge-action@v0.8.0
         env:
           MERGE_LABELS: ''
           UPDATE_LABELS: ''
+          UPDATE_METHOD: rebase
+          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+
+  merge-lock-file:
+    name: Merge updated lock file
+    runs-on: ubuntu-latest
+    if: >-
+      (
+        github.event_name == 'pull_request_review' &&
+        github.event.pull_request.user.login == 'branoholy-bot'
+      ) ||
+      (
+        github.event_name == 'status' &&
+        contains(github.event.branches.*.name, 'deps-update-lock-file')
+      )
+    steps:
+      - name: Merge pull request
+        uses: pascalgn/automerge-action@v0.8.0
+        env:
+          MERGE_LABELS: ''
+          UPDATE_LABELS: ''
+          UPDATE_METHOD: rebase
           GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
 
   merge-dist:
-    name: Merge dist PR
+    name: Merge updated dist
     runs-on: ubuntu-latest
     if: >-
-      github.event.pull_request.user.login == 'branoholy-bot' &&
-      github.head_ref == 'build-update-dist'
+      (
+        github.event_name == 'pull_request_review' &&
+        github.event.pull_request.user.login == 'branoholy-bot'
+      ) ||
+      (
+        github.event_name == 'status' &&
+        contains(github.event.branches.*.name, 'build-update-dist')
+      )
     steps:
       - name: Merge pull request
         uses: pascalgn/automerge-action@v0.8.0
         env:
           MERGE_LABELS: ''
           UPDATE_LABELS: ''
+          UPDATE_METHOD: rebase
           GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}

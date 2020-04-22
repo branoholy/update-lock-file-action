@@ -1,10 +1,37 @@
+# Approve Dependabot dependencies
+#
+# Babel (build job)
+# -----------------
+# babel- => @babel/*
+#
+# ESLint (lint job)
+# -----------------
+# typescript-eslint-parser- => @typescript-eslint/parser
+# eslint- => eslint, eslint-config-*, eslint-plugin-*
+# prettier- => prettier
+#
+# TypeScript (type-check job)
+# ---------------------------
+# types- => @types/*
+# typescript- => typescript
+#
+# Webpack (build job)
+# -------------------
+# babel- => babel-loader
+# webpack- => webpack, webpack-cli
+#
+# Other dependencies
+# ------------------
+# @actions/core, @octokit/rest, btoa, envalid
+# husky, lint-staged, ts-node
+
 name: Approve PR
 
 on: pull_request
 
 jobs:
   approve-dependabot:
-    name: Dependabot dependencies
+    name: Approve Dependabot dependencies
     runs-on: ubuntu-latest
     if: >-
       (
@@ -27,7 +54,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   approve-lock-file:
-    name: Updated lock file
+    name: Approve updated lock file
     runs-on: ubuntu-latest
     if: >-
       github.event.pull_request.user.login == 'branoholy-bot' &&
@@ -39,7 +66,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   approve-dist:
-    name: Updated dist
+    name: Approve updated dist
     runs-on: ubuntu-latest
     if: >-
       github.event.pull_request.user.login == 'branoholy-bot' &&
