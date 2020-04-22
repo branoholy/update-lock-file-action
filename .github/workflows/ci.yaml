@@ -95,3 +95,20 @@ jobs:
         run: npm run lint:all
         env:
           CI: true
+
+  send-ci-status-summary:
+    name: Send CI status summary
+    runs-on: ubuntu-latest
+    needs: [build, type-check, lint]
+    steps:
+      - name: Send CI status summary
+        run: >-
+          curl -L -X POST
+          -H 'Content-Type: application/json'
+          -H 'Authorization: token ${{ secrets.BRANOHOLY_BOT_TOKEN }}'
+          -d '{
+            "state": "success",
+            "context": "CI / Status summary",
+            "description": "All checks passed"
+          }'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}'
