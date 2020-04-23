@@ -29,7 +29,7 @@ jobs:
         uses: pascalgn/automerge-action@v0.8.0
         env:
           MERGE_LABELS: ''
-          UPDATE_LABELS: ''
+          UPDATE_LABELS: 'autorebase'
           UPDATE_METHOD: rebase
           GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
 
@@ -50,7 +50,7 @@ jobs:
         uses: pascalgn/automerge-action@v0.8.0
         env:
           MERGE_LABELS: ''
-          UPDATE_LABELS: ''
+          UPDATE_LABELS: 'autorebase'
           UPDATE_METHOD: rebase
           GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
 
@@ -71,6 +71,6 @@ jobs:
         uses: pascalgn/automerge-action@v0.8.0
         env:
           MERGE_LABELS: ''
-          UPDATE_LABELS: ''
+          UPDATE_LABELS: 'autorebase'
           UPDATE_METHOD: rebase
           GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
