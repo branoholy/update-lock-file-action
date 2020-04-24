@@ -21,6 +21,9 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache-dependencies.outputs.cache-hit == false
+        run: npm ci
       - name: Update dist
         uses: branoholy/update-files-action@develop
         with:
