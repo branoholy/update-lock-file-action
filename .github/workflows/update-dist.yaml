@@ -29,5 +29,6 @@ jobs:
           paths: dist/index.js
           branch: build-update-dist
           commit-message: 'BUILD: Update dist'
+          commit-token: ${{ secrets.GITHUB_TOKEN }}
           body: Automatic update of `dist/index.js`.
           reviewers: branoholy
