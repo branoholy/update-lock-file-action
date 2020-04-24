@@ -24,7 +24,6 @@ jobs:
           paths: 'package-lock.json, dist/index.js'
           branch: deps-update-lock-file
           commit-message: 'DEPS: Update lock file'
-          commit-token: ${{ secrets.GITHUB_TOKEN }}
           body: Automatic update of dependencies in `package-lock.json`.
           labels: dependencies
           reviewers: branoholy
