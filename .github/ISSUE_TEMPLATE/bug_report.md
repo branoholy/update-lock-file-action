@@ -37,7 +37,7 @@ jobs:
         uses: branoholy/update-files-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commands: 'npm i'
+          commands: npm i
           paths: package-lock.json
 ```
 

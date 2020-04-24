@@ -2,11 +2,18 @@ import { Octokit } from '@octokit/rest';
 import btoa from 'btoa';
 import { readFileSync } from 'fs';
 
-export interface CommitFilesArgs {
-  readonly paths: string[];
+export interface CommitArgs {
   readonly commitMessage: string;
   readonly branch: string;
   readonly baseBranch?: string;
+}
+
+export interface CommitFileArgs extends CommitArgs {
+  readonly path: string;
+}
+
+export interface CommitFilesArgs extends CommitArgs {
+  readonly paths: string[];
 }
 
 export interface CreatePullRequestArgs {
@@ -104,6 +111,22 @@ export class RepoKit {
     } catch (error) {
       return { error };
     }
+  }
+
+  async commitFile({ path, commitMessage, branch, baseBranch = branch }: CommitFileArgs) {
+    const { fileInfo } = await this.tryGetFileInfo(path, baseBranch);
+    const sha = fileInfo?.sha;
+
+    const { data } = await this.octokit.repos.createOrUpdateFile({
+      ...this.getRepositoryInfo(),
+      branch,
+      path,
+      sha,
+      message: commitMessage,
+      content: btoa(readFileSync(path))
+    });
+
+    return data;
   }
 
   async commitFiles({ paths, commitMessage, branch, baseBranch = branch }: CommitFilesArgs) {

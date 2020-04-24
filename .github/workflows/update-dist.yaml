@@ -15,11 +15,17 @@ jobs:
         uses: actions/setup-node@v1.4.0
         with:
           node-version: 13.12.0
+      - name: Cache or restore dependencies
+        id: cache-dependencies
+        uses: actions/cache@v1.1.2
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - name: Update dist
         uses: branoholy/update-files-action@develop
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
-          commands: 'npm ci, npm run build:dist'
+          commands: 'npm run build:dist'
           paths: dist/index.js
           branch: build-update-dist
           commit-message: 'BUILD: Update dist'
