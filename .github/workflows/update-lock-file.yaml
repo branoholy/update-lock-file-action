@@ -20,8 +20,8 @@ jobs:
         uses: branoholy/update-files-action@develop
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
-          commands: 'npm i, npm run build:dist'
-          paths: 'package-lock.json, dist/index.js'
+          commands: npm i
+          paths: package-lock.json
           branch: deps-update-lock-file
           commit-message: 'DEPS: Update lock file'
           body: Automatic update of dependencies in `package-lock.json`.

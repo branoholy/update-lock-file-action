@@ -30,47 +30,32 @@ name: Approve PR
 on: pull_request
 
 jobs:
-  approve-dependabot:
-    name: Approve Dependabot dependencies
+  approve-pr:
+    name: "Approve bot's PR"
     runs-on: ubuntu-latest
     if: >-
       (
-        github.event.pull_request.user.login == 'dependabot[bot]' ||
-        github.event.pull_request.user.login == 'dependabot-preview[bot]'
-      ) &&
+        (
+          github.event.pull_request.user.login == 'dependabot[bot]' ||
+          github.event.pull_request.user.login == 'dependabot-preview[bot]'
+        ) &&
+        (
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-prettier-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-')
+        )
+      ) ||
       (
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-prettier-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-')
+        github.event.pull_request.user.login == 'branoholy-bot' &&
+        (
+          github.head_ref == 'deps-update-lock-file' ||
+          github.head_ref == 'build-update-dist'
+        )
       )
-    steps:
-      - name: Approve pull request
-        uses: hmarr/auto-approve-action@v2.0.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  approve-lock-file:
-    name: Approve updated lock file
-    runs-on: ubuntu-latest
-    if: >-
-      github.event.pull_request.user.login == 'branoholy-bot' &&
-      github.head_ref == 'deps-update-lock-file'
-    steps:
-      - name: Approve pull request
-        uses: hmarr/auto-approve-action@v2.0.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  approve-dist:
-    name: Approve updated dist
-    runs-on: ubuntu-latest
-    if: >-
-      github.event.pull_request.user.login == 'branoholy-bot' &&
-      github.head_ref == 'build-update-dist'
     steps:
       - name: Approve pull request
         uses: hmarr/auto-approve-action@v2.0.0

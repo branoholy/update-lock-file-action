@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { unlinkSync } from 'fs';
 
-import { RepoKit } from './repo-kit';
+import { CommitArgs, RepoKit } from './repo-kit';
 import { isFileChanged } from './utils/file-utils';
 import { parseList } from './utils/string-utils';
 
@@ -98,16 +98,28 @@ export const main = async ({
     console.info(`Branch "${branch}" has been created`);
 
     // Commit the changed files
-    const commitFiles = (kit: RepoKit) =>
-      kit.commitFiles({
-        paths: changedPaths,
+    const commitFiles = (kit: RepoKit) => {
+      const commitArgs: CommitArgs = {
         commitMessage,
         branch,
         baseBranch: defaultBranchName
+      };
+
+      if (changedPaths.length === 1) {
+        return kit.commitFile({
+          path: changedPaths[0],
+          ...commitArgs
+        });
+      }
+
+      return kit.commitFiles({
+        paths: changedPaths,
+        ...commitArgs
       });
+    };
 
     if (commitToken) {
-      await repoKit.withToken(commitToken, commitFiles);
+      await repoKit.withToken<unknown>(commitToken, commitFiles);
     } else {
       await commitFiles(repoKit);
     }
