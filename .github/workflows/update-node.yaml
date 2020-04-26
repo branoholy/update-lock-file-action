@@ -1,0 +1,54 @@
+name: Update Node.js
+
+on:
+  schedule:
+    - cron: '0 13 * * 0'
+
+jobs:
+  update-node:
+    name: Update Node.js
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.1.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v1.4.0
+        with:
+          node-version: 13.12.0
+      - name: Cache or restore dependencies
+        id: cache-dependencies
+        uses: actions/cache@v1.1.2
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache-dependencies.outputs.cache-hit == false
+        run: npm ci
+      - name: Update Node.js
+        uses: branoholy/update-files-action@develop
+        with:
+          token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          commands: npm run node-versions-update
+          paths: '.nvmrc, package.json'
+          keep-paths: '.nvmrc, package.json'
+          branch: deps-update-node
+          commit-message: 'DEPS: Update Node.js'
+          commit-token: ${{ secrets.GITHUB_TOKEN }}
+          body: |-
+            Automatic update of Node.js versions.
+
+            Run `npm run node-versions-update` to update Node.js versions in workflow files.
+
+            You can use the following commands to update, commit, and push the workflow files.
+
+            ```text
+            git fetch
+            git checkout deps-update-node
+            git reset --hard origin/deps-update-node
+            npm run node-versions-update
+            git add .github/workflows/
+            git commit -m "DEPS: Update Node.js in workflow files"
+            git push
+            ```
+          labels: dependencies
+          reviewers: branoholy
