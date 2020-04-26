@@ -19,7 +19,7 @@
     "start:dist": "node dist/index.js",
     "lint": "eslint 'src/**'",
     "lint:fix": "npm run lint -- --fix",
-    "lint:all": "eslint '**' && prettier --check **/*.yaml",
+    "lint:all": "eslint '**' && prettier --check '**'",
     "lint:staged": "lint-staged",
     "type-check": "tsc",
     "type-check:watch": "tsc --watch",
