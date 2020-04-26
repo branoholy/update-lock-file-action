@@ -1,21 +1,15 @@
+# All hidden files and directories
+.*
+
 # Enable hidden files with extensions
 !.*.*
 
 # Enable all hidden directories
 !.*/
 
-# Dependencies
-node_modules/
-
 # Build
 build/
 dist/
 
-# Git
-.git/
-
 # Lock file
 package-lock.json
-
-# YAML files
-*.yaml
