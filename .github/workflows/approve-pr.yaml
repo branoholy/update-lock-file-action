@@ -1,29 +1,33 @@
 # Approve Dependabot dependencies
 #
-# Babel (build job)
-# -----------------
-# babel- => @babel/*
+# Approved dependencies
+# ---------------------
+# babel-
+#   @babel/*, babel-loader (build)
+#   @babel/node (check-node-versions)
 #
-# ESLint (lint job)
-# -----------------
-# typescript-eslint-parser- => @typescript-eslint/parser
-# eslint- => eslint, eslint-config-*, eslint-plugin-*
-# prettier- => prettier
+# eslint-
+#   eslint, eslint-config-*, eslint-plugin-* (lint)
 #
-# TypeScript (type-check job)
-# ---------------------------
-# types- => @types/*
-# typescript- => typescript
+# prettier-
+#   prettier (lint)
 #
-# Webpack (build job)
-# -------------------
-# babel- => babel-loader
-# webpack- => webpack, webpack-cli
+# types-
+#   @types/* (type-check)
+#
+# typescript-
+#   typescript (type-check)
+#
+# typescript-eslint-parser-
+#   @typescript-eslint/parser (lint)
+#
+# webpack-
+#   webpack, webpack-cli (build)
 #
 # Other dependencies
 # ------------------
 # @actions/core, @octokit/rest, btoa, envalid
-# diff, husky, lint-staged, node-fetch, ts-node
+# diff, husky, lint-staged, node-fetch
 
 name: Approve PR
 
@@ -41,11 +45,11 @@ jobs:
         ) &&
         (
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
-          startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-prettier-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-')
         )
       ) ||

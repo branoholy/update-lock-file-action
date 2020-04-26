@@ -23,8 +23,8 @@
     "lint:staged": "lint-staged",
     "type-check": "tsc",
     "type-check:watch": "tsc --watch",
-    "node-versions-check": "ts-node -O '{\"module\":\"commonjs\"}' scripts/check-node-versions.ts",
-    "node-versions-update": "ts-node -O '{\"module\":\"commonjs\"}' scripts/update-node-versions.ts"
+    "node-versions-check": "babel-node --extensions '.ts' scripts/check-node-versions.ts",
+    "node-versions-update": "babel-node --extensions '.ts' scripts/update-node-versions.ts"
   },
   "dependencies": {
     "@actions/core": "1.2.3",
@@ -35,6 +35,7 @@
   "devDependencies": {
     "@babel/cli": "7.8.4",
     "@babel/core": "7.9.0",
+    "@babel/node": "7.8.7",
     "@babel/preset-env": "7.9.5",
     "@babel/preset-typescript": "7.9.0",
     "@types/btoa": "1.2.3",
@@ -55,7 +56,6 @@
     "lint-staged": "10.1.7",
     "node-fetch": "2.6.0",
     "prettier": "2.0.5",
-    "ts-node": "8.9.0",
     "typescript": "3.8.3",
     "webpack": "4.43.0",
     "webpack-cli": "3.3.11"
@@ -64,7 +64,7 @@
     "hooks": {
       "pre-commit": "lint-staged",
       "post-commit": "rm -f .lint-staged-temp-tsconfig.json",
-      "prepare-commit-msg": "ts-node -O '{\"module\":\"commonjs\"}' hooks/prepare-commit-msg.ts $HUSKY_GIT_PARAMS"
+      "prepare-commit-msg": "babel-node --extensions '.ts' hooks/prepare-commit-msg.ts $HUSKY_GIT_PARAMS"
     }
   }
 }
