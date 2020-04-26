@@ -30,7 +30,7 @@ name: Approve PR
 on: pull_request
 
 jobs:
-  approve-pr:
+  approve-bots-pr:
     name: "Approve bot's PR"
     runs-on: ubuntu-latest
     if: >-
@@ -62,3 +62,13 @@ jobs:
         uses: hmarr/auto-approve-action@v2.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  approve-owners-pr:
+    name: "Approve owner's PR"
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'branoholy'
+    steps:
+      - name: Approve pull request
+        uses: hmarr/auto-approve-action@v2.0.0
+        with:
+          github-token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
