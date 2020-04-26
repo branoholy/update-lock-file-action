@@ -23,7 +23,7 @@
 # Other dependencies
 # ------------------
 # @actions/core, @octokit/rest, btoa, envalid
-# husky, lint-staged, ts-node
+# diff, husky, lint-staged, node-fetch, ts-node
 
 name: Approve PR
 
@@ -53,6 +53,7 @@ jobs:
         github.event.pull_request.user.login == 'branoholy-bot' &&
         (
           github.head_ref == 'deps-update-lock-file' ||
+          github.head_ref == 'deps-update-node' ||
           github.head_ref == 'build-update-dist'
         )
       )

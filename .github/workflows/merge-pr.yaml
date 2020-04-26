@@ -24,6 +24,7 @@ jobs:
           github.event.commit.author.login == 'dependabot[bot]' ||
           github.event.commit.author.login == 'dependabot-preview[bot]' ||
           contains(github.event.branches.*.name, 'deps-update-lock-file') ||
+          contains(github.event.branches.*.name, 'deps-update-node') ||
           contains(github.event.branches.*.name, 'build-update-dist')
         )
       )

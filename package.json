@@ -22,7 +22,9 @@
     "lint:all": "eslint '**' && prettier --check **/*.yaml",
     "lint:staged": "lint-staged",
     "type-check": "tsc",
-    "type-check:watch": "tsc --watch"
+    "type-check:watch": "tsc --watch",
+    "node-versions-check": "ts-node -O '{\"module\":\"commonjs\"}' scripts/check-node-versions.ts",
+    "node-versions-update": "ts-node -O '{\"module\":\"commonjs\"}' scripts/update-node-versions.ts"
   },
   "dependencies": {
     "@actions/core": "1.2.3",
@@ -36,9 +38,12 @@
     "@babel/preset-env": "7.9.5",
     "@babel/preset-typescript": "7.9.0",
     "@types/btoa": "1.2.3",
+    "@types/diff": "4.0.2",
     "@types/node": "13.13.2",
+    "@types/node-fetch": "2.5.7",
     "@typescript-eslint/parser": "2.29.0",
     "babel-loader": "8.1.0",
+    "diff": "4.0.2",
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-import": "2.20.2",
@@ -48,6 +53,7 @@
     "eslint-plugin-simple-import-sort": "5.0.2",
     "husky": "4.2.5",
     "lint-staged": "10.1.7",
+    "node-fetch": "2.6.0",
     "prettier": "2.0.5",
     "ts-node": "8.9.0",
     "typescript": "3.8.3",
