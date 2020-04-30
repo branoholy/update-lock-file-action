@@ -14,7 +14,7 @@ const babelLoader = {
         '@babel/preset-env',
         {
           targets: {
-            node: 'current'
+            node: '13.14.0'
           },
           modules: false
         }
