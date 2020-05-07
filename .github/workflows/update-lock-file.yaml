@@ -1,9 +1,8 @@
 name: Update lock file
 
 on:
-  push:
-    branches: develop
-    paths: package-lock.json
+  schedule:
+    - cron: '0 14 * * 0'
 
 jobs:
   update-lock-file:
