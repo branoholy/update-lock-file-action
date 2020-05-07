@@ -13,6 +13,17 @@ jobs:
         github.event.pull_request.user.login == 'branoholy-bot'
       )
     steps:
+      - name: Send initial CI status
+        run: >-
+          curl -L -X POST
+          -H 'Content-Type: application/json'
+          -H 'Authorization: token ${{ secrets.BRANOHOLY_BOT_TOKEN }}'
+          -d '{
+            "state": "pending",
+            "context": "CI / Status summary",
+            "description": "In progress"
+          }'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}'
       - name: Checkout
         uses: actions/checkout@v2.1.0
       - name: Setup Node.js
