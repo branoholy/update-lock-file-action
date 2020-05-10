@@ -2,6 +2,9 @@ name: CI
 
 on: [push, pull_request]
 
+env:
+  EVENT_SHA: '{"push": "${{ github.sha }}", "pull_request": "${{ github.event.pull_request.head.sha }}"}'
+
 jobs:
   install:
     name: Install dependencies
@@ -23,7 +26,7 @@ jobs:
             "context": "CI / Status summary",
             "description": "In progress"
           }'
-          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ fromJSON(env.EVENT_SHA)[github.event_name] }}'
       - name: Checkout
         uses: actions/checkout@v2.1.0
       - name: Setup Node.js
@@ -145,4 +148,4 @@ jobs:
             "context": "CI / Status summary",
             "description": "All checks passed"
           }'
-          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ fromJSON(env.EVENT_SHA)[github.event_name] }}'
