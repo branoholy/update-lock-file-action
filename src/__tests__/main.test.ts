@@ -66,22 +66,21 @@ describe('main', () => {
 
     expectEnvToBeCalled();
 
-    expect(getInputMock).toBeCalledTimes(15);
+    expect(getInputMock).toBeCalledTimes(14);
     expect(getInputMock).nthCalledWith(1, 'token', { required: true });
     expect(getInputMock).nthCalledWith(2, 'commands', { required: true });
     expect(getInputMock).nthCalledWith(3, 'paths', { required: true });
-    expect(getInputMock).nthCalledWith(4, 'keep-paths');
-    expect(getInputMock).nthCalledWith(5, 'branch');
-    expect(getInputMock).nthCalledWith(6, 'commit-message');
-    expect(getInputMock).nthCalledWith(7, 'commit-token');
-    expect(getInputMock).nthCalledWith(8, 'title');
-    expect(getInputMock).nthCalledWith(9, 'body');
-    expect(getInputMock).nthCalledWith(10, 'labels');
-    expect(getInputMock).nthCalledWith(11, 'assignees');
-    expect(getInputMock).nthCalledWith(12, 'reviewers');
-    expect(getInputMock).nthCalledWith(13, 'team-reviewers');
-    expect(getInputMock).nthCalledWith(14, 'milestone');
-    expect(getInputMock).nthCalledWith(15, 'draft');
+    expect(getInputMock).nthCalledWith(4, 'branch');
+    expect(getInputMock).nthCalledWith(5, 'commit-message');
+    expect(getInputMock).nthCalledWith(6, 'commit-token');
+    expect(getInputMock).nthCalledWith(7, 'title');
+    expect(getInputMock).nthCalledWith(8, 'body');
+    expect(getInputMock).nthCalledWith(9, 'labels');
+    expect(getInputMock).nthCalledWith(10, 'assignees');
+    expect(getInputMock).nthCalledWith(11, 'reviewers');
+    expect(getInputMock).nthCalledWith(12, 'team-reviewers');
+    expect(getInputMock).nthCalledWith(13, 'milestone');
+    expect(getInputMock).nthCalledWith(14, 'draft');
 
     expectToBeCalled(appMock, [
       [
@@ -90,7 +89,6 @@ describe('main', () => {
           token,
           commands,
           paths,
-          keepPaths: undefined,
           branch: undefined,
           commitMessage: undefined,
           commitToken: undefined,

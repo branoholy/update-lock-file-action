@@ -19,7 +19,7 @@ jobs:
         uses: branoholy/update-files-action@develop
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
-          commands: npm i
+          commands: 'rm package-lock.json, npm i'
           paths: package-lock.json
           branch: deps-update-lock-file
           commit-message: 'DEPS: Update lock file'

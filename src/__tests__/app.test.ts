@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import { unlinkSync } from 'fs';
 
 import { app } from '../app';
 import { RepoKit } from '../repo-kit';
@@ -9,9 +8,6 @@ import { PromiseValueType } from '../utils/type-utils';
 
 const consoleInfoMock = jest.spyOn(console, 'info');
 const consoleErrorMock = jest.spyOn(console, 'error');
-
-jest.mock('fs');
-const unlinkSyncMock = asMockedFunction(unlinkSync);
 
 jest.mock('child_process');
 const execSyncMock = asMockedFunction(execSync);
@@ -64,7 +60,6 @@ describe('app', () => {
   /**
    * Flow #1
    * -------
-   * - remove all files
    * - run all commands
    * - check changes of all files
    * = mock: no file is changed
@@ -76,23 +71,17 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths })).toBe(0);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
     expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
     expect(RepoKitMock.mock.instances.length).toBe(0);
 
-    expectToBeCalled(consoleInfoMock, [
-      ['File "path1" has been removed'],
-      ['File "path2" has been removed'],
-      ['No file has been changed']
-    ]);
+    expectToBeCalled(consoleInfoMock, [['No file has been changed']]);
   });
 
   /**
    * Flow #2
    * -------
-   * - remove all files
    * - run all commands
    * - check changes of all files
    * = mock: all files are changed
@@ -115,7 +104,6 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths })).toBe(0);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
     expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
@@ -150,8 +138,6 @@ describe('app', () => {
     ]);
 
     expectToBeCalled(consoleInfoMock, [
-      ['File "path1" has been removed'],
-      ['File "path2" has been removed'],
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       [`Branch "${defaultBranchArg}" has been created`],
@@ -163,7 +149,6 @@ describe('app', () => {
   /**
    * Flow #3
    * -------
-   * - remove all files
    * - run all commands
    * - check changes of all files
    * = mock: all files are changed
@@ -184,7 +169,6 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch })).toBe(0);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
     expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
@@ -207,8 +191,6 @@ describe('app', () => {
     });
 
     expectToBeCalled(consoleInfoMock, [
-      ['File "path1" has been removed'],
-      ['File "path2" has been removed'],
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" already exists'],
@@ -223,7 +205,6 @@ describe('app', () => {
   /**
    * Flow #4
    * -------
-   * - remove all files
    * - run all commands
    * - check changes of all files
    * = mock: one file is changed
@@ -244,7 +225,6 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch })).toBe(0);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
     expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
@@ -267,8 +247,6 @@ describe('app', () => {
     });
 
     expectToBeCalled(consoleInfoMock, [
-      ['File "path1" has been removed'],
-      ['File "path2" has been removed'],
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],
       ['Changed files have been committed'],
@@ -279,7 +257,6 @@ describe('app', () => {
   /**
    * Flow #5
    * -------
-   * - remove all files
    * - run all commands
    * - check changes of all files
    * = mock: all files are changed
@@ -303,7 +280,6 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch, commitToken })).toBe(0);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
     expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
@@ -329,8 +305,6 @@ describe('app', () => {
     });
 
     expectToBeCalled(consoleInfoMock, [
-      ['File "path1" has been removed'],
-      ['File "path2" has been removed'],
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],
@@ -342,7 +316,6 @@ describe('app', () => {
   /**
    * Flow #6
    * -------
-   * - remove all files
    * - run all commands
    * = mock: an exception is thrown
    * - do not call GitHub API (do not create RepoKit)
@@ -359,19 +332,17 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths })).toBe(1);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1']]);
 
     expect(RepoKitMock.mock.instances.length).toBe(0);
 
-    expectToBeCalled(consoleInfoMock, [['File "path1" has been removed'], ['File "path2" has been removed']]);
+    expect(consoleInfoMock).not.toBeCalled();
     expectToBeCalled(consoleErrorMock, [[error]]);
   });
 
   /**
    * Flow #7
    * -------
-   * - remove all files
    * - run all commands
    * - check changes of all files
    * = mock: all files are changed
@@ -392,7 +363,6 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch, commitMessage, title, body })).toBe(0);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
     expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
@@ -427,8 +397,6 @@ describe('app', () => {
     ]);
 
     expectToBeCalled(consoleInfoMock, [
-      ['File "path1" has been removed'],
-      ['File "path2" has been removed'],
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],
@@ -440,7 +408,6 @@ describe('app', () => {
   /**
    * Flow #8
    * -------
-   * - remove all files
    * - run all commands
    * - check changes of all files
    * = mock: all files are changed
@@ -478,7 +445,6 @@ describe('app', () => {
       })
     ).toBe(0);
 
-    expectToBeCalled(unlinkSyncMock, [['path1'], ['path2']]);
     expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
     expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
@@ -518,8 +484,6 @@ describe('app', () => {
     ]);
 
     expectToBeCalled(consoleInfoMock, [
-      ['File "path1" has been removed'],
-      ['File "path2" has been removed'],
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],

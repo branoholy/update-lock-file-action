@@ -14,7 +14,6 @@ export const main = async () => {
       token: getInput('token', { required: true }),
       commands: getInput('commands', { required: true }),
       paths: getInput('paths', { required: true }),
-      keepPaths: getInput('keep-paths'),
       branch: getInput('branch'),
       commitMessage: getInput('commit-message'),
       commitToken: getInput('commit-token'),

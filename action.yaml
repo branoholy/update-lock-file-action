@@ -8,11 +8,8 @@ inputs:
     description: A comma-separated list of commands to generate the files specified in `paths`.
     required: true
   paths:
-    description: A comma-separated list of paths to delete and commit if they were changed.
+    description: A comma-separated list of paths to commit if they were changed.
     required: true
-  keep-paths:
-    description: A comma-separated list of paths that should not be deleted.
-    required: false
   branch:
     description: A custom branch name.
     required: false
