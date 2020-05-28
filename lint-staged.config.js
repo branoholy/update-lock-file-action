@@ -29,5 +29,10 @@ module.exports = {
     }
 
     return `tsc -p ${tsconfigPath}`;
+  },
+  'src/**/*.ts?(x)': (filenames) => {
+    const relativeFilenames = mapToRelative(filenames).join(' ');
+
+    return `jest --findRelatedTests ${relativeFilenames}`;
   }
 };
