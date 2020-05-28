@@ -12,7 +12,6 @@ module.exports = {
   jest: {
     enableFindRelatedTests: true
   },
-  logLevel: 'debug',
   transpilers: [],
   coverageAnalysis: 'off',
   tsconfigFile: 'tsconfig.json',
