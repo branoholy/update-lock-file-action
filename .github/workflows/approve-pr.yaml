@@ -4,10 +4,14 @@
 # ---------------------
 # babel-
 #   @babel/*, babel-loader (build)
+#   babel-jest (test)
 #   @babel/node (check-node-versions)
 #
 # eslint-
 #   eslint, eslint-config-*, eslint-plugin-* (lint)
+#
+# jest-
+#   jest (test)
 #
 # prettier-
 #   prettier (lint)
@@ -46,6 +50,7 @@ jobs:
         (
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-jest-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-prettier-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
