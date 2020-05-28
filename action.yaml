@@ -10,9 +10,6 @@ inputs:
   paths:
     description: A comma-separated list of paths to delete and commit if they were changed.
     required: true
-  keep-paths:
-    description: A comma-separated list of paths that should not be deleted.
-    required: false
   branch:
     description: A custom branch name.
     required: false

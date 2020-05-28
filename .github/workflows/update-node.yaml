@@ -30,7 +30,6 @@ jobs:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
           commands: npm run node-versions-update
           paths: '.nvmrc, package.json'
-          keep-paths: '.nvmrc, package.json'
           branch: deps-update-node
           commit-message: 'DEPS: Update Node.js'
           commit-token: ${{ secrets.GITHUB_TOKEN }}

@@ -29,7 +29,6 @@ with:
   token: ${{ secrets.GITHUB_TOKEN }}
   commands: 'command-1, command-2'
   paths: 'path/to/file/a.txt, path/to/file/b.txt, path/to/file/c.txt'
-  keep-files: 'path/to/file/a.txt, path/to/file/b.txt'
   branch: branch-name
   commit-message: Commit message
   commit-token: ${{ secrets.ANOTHER_TOKEN }}
@@ -79,7 +78,6 @@ jobs:
 - `token`: A token for committing the updated files and creating the pull request (required).
 - `commands`: A comma-separated list of commands to generate the files specified in `paths` (required).
 - `paths`: A comma-separated list of paths to delete and commit if they were changed (required).
-- `keep-paths`: A comma-separated list of paths that should not be deleted (default: `''`).
 - `branch`: A custom branch name (default: `'update-files'`).
 - `commit-message`: A custom commit message (default: `'Update files'`).
 - `commit-token`: A token that will be used to commit the files instead of `token` (default: `token`).
