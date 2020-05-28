@@ -17,7 +17,7 @@ This example updates `package-lock.json` by executing `npm i`.
 uses: branoholy/update-files-action
 with:
   token: ${{ secrets.GITHUB_TOKEN }}
-  commands: npm i
+  commands: 'rm package-lock.json, npm i'
   paths: package-lock.json
 ```
 
@@ -69,7 +69,7 @@ jobs:
         uses: branoholy/update-files-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commands: npm i
+          commands: 'rm package-lock.json, npm i'
           paths: package-lock.json
 ```
 
@@ -77,7 +77,7 @@ jobs:
 
 - `token`: A token for committing the updated files and creating the pull request (required).
 - `commands`: A comma-separated list of commands to generate the files specified in `paths` (required).
-- `paths`: A comma-separated list of paths to delete and commit if they were changed (required).
+- `paths`: A comma-separated list of paths to commit if they were changed (required).
 - `branch`: A custom branch name (default: `'update-files'`).
 - `commit-message`: A custom commit message (default: `'Update files'`).
 - `commit-token`: A token that will be used to commit the files instead of `token` (default: `token`).

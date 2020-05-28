@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import { unlinkSync } from 'fs';
 
 import { CommitArgs, RepoKit } from './repo-kit';
 import { isFileChanged } from './utils/file-utils';
@@ -27,7 +26,7 @@ export const app = async ({
   repository,
   token,
   commands,
-  paths: pathList,
+  paths,
   branch = 'update-files',
   commitMessage = 'Update files',
   commitToken,
@@ -41,21 +40,13 @@ export const app = async ({
   draft
 }: AppArgs) => {
   try {
-    // Remove files
-    const paths = parseList(pathList);
-
-    paths.forEach((path) => {
-      unlinkSync(path);
-      console.info(`File "${path}" has been removed`);
-    });
-
     // Run commands
     parseList(commands).forEach((command) => {
       execSync(command);
     });
 
     // Find changed files
-    const changedPaths = paths.reduce<string[]>((acc, path) => {
+    const changedPaths = parseList(paths).reduce<string[]>((acc, path) => {
       if (isFileChanged(path)) {
         console.info(`File "${path}" is changed`);
         return [...acc, path];
