@@ -83,9 +83,10 @@ jobs:
           path: node_modules
           key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - name: Test
-        run: npm run test
+        run: npm run test:coverage
         env:
           CI: true
+      - uses: codecov/codecov-action@v1.0.7
 
   type-check:
     name: Check types
