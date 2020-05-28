@@ -1,5 +1,8 @@
 # Update Files Action
 
+![build](https://img.shields.io/github/workflow/status/branoholy/update-files-action/CI/develop)
+![coverage](https://img.shields.io/codecov/c/github/branoholy/update-files-action/develop)
+
 _A GitHub action for updating files._
 
 This GitHub action can update files via custom commands and create a pull request with them.
