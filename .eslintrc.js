@@ -3,7 +3,8 @@
 module.exports = {
   env: {
     es6: true,
-    node: true
+    node: true,
+    jest: true
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -11,7 +12,7 @@ module.exports = {
     sourceType: 'module'
   },
   extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:json/recommended-with-comments'],
-  plugins: ['import', 'simple-import-sort', 'markdown'],
+  plugins: ['import', 'simple-import-sort', 'jest', 'markdown'],
   rules: {
     'no-dupe-class-members': 'off',
     'no-unused-vars': 'off',

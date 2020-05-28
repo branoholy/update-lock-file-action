@@ -9,3 +9,6 @@ build/
 
 # Misc
 etc/
+
+# Stryker
+.stryker-tmp
