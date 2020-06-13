@@ -97,7 +97,7 @@ export class RepoKit {
   }
 
   async getFileInfo(path: string, branch?: string) {
-    const { data } = await this.octokit.repos.getContents({
+    const { data } = await this.octokit.repos.getContent({
       ...this.getRepositoryInfo(),
       path,
       ...(branch ? { ref: `heads/${branch}` } : {})
@@ -124,7 +124,7 @@ export class RepoKit {
     const { fileInfo } = await this.tryGetFileInfo(path, baseBranch);
     const sha = fileInfo?.sha;
 
-    const { data } = await this.octokit.repos.createOrUpdateFile({
+    const { data } = await this.octokit.repos.createOrUpdateFileContents({
       ...this.getRepositoryInfo(),
       branch,
       path,
@@ -205,7 +205,7 @@ export class RepoKit {
     });
 
     if (reviewers || teamReviewers) {
-      await this.octokit.pulls.createReviewRequest({
+      await this.octokit.pulls.requestReviewers({
         ...this.getRepositoryInfo(),
         pull_number: data.number,
         reviewers,

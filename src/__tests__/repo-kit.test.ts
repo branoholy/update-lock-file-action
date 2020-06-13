@@ -23,10 +23,10 @@ type MockedOctokit = {
     [fn in 'update']: jest.MockedFunction<Callable<Octokit['issues'][fn]>>;
   };
   pulls: {
-    [fn in 'create' | 'createReviewRequest']: jest.MockedFunction<Callable<Octokit['pulls'][fn]>>;
+    [fn in 'create' | 'requestReviewers']: jest.MockedFunction<Callable<Octokit['pulls'][fn]>>;
   };
   repos: {
-    [fn in 'get' | 'getContents' | 'createOrUpdateFile']: jest.MockedFunction<Callable<Octokit['repos'][fn]>>;
+    [fn in 'get' | 'getContent' | 'createOrUpdateFileContents']: jest.MockedFunction<Callable<Octokit['repos'][fn]>>;
   };
 };
 
@@ -48,12 +48,12 @@ jest.mock('@octokit/rest', () => ({
     };
     this.pulls = {
       create: jest.fn(),
-      createReviewRequest: jest.fn()
+      requestReviewers: jest.fn()
     };
     this.repos = {
       get: jest.fn(),
-      getContents: jest.fn(),
-      createOrUpdateFile: jest.fn()
+      getContent: jest.fn(),
+      createOrUpdateFileContents: jest.fn()
     };
   })
 }));
@@ -284,7 +284,7 @@ describe('RepoKit', () => {
     const message = 'The requested path is a directory';
 
     it('should return the file info from the default branch if the input is a file path and no branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContents;
+      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
 
       getContentsMock.mockResolvedValue({
         ...response,
@@ -296,7 +296,7 @@ describe('RepoKit', () => {
     });
 
     it('should return the file info from the specified branch if the input is a file path and a branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContents;
+      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
 
       getContentsMock.mockResolvedValue({
         ...response,
@@ -308,7 +308,7 @@ describe('RepoKit', () => {
     });
 
     it('should throw an error if the input is a directory path and no branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContents;
+      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
 
       getContentsMock.mockResolvedValue({
         ...response,
@@ -321,7 +321,7 @@ describe('RepoKit', () => {
     });
 
     it('should throw an error if the input is a directory path and a branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContents;
+      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
 
       getContentsMock.mockResolvedValue({
         ...response,
@@ -364,7 +364,7 @@ describe('RepoKit', () => {
     const baseBranch = 'base-branch';
 
     it('should create the file when it does not exist', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFile;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ error: {} });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
@@ -394,7 +394,7 @@ describe('RepoKit', () => {
     });
 
     it('should create the file when it does not exist on the base branch', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFile;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ error: {} });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
@@ -424,7 +424,7 @@ describe('RepoKit', () => {
     });
 
     it('should update the file when it exists', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFile;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ fileInfo: fileContent });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
@@ -455,7 +455,7 @@ describe('RepoKit', () => {
     });
 
     it('should update the file when it exists on the base branch', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFile;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ fileInfo: fileContent });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
@@ -627,7 +627,7 @@ describe('RepoKit', () => {
 
     it('should call all necessary methods in the correct order', async () => {
       const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.createReviewRequest;
+      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
       const updateMock = OctokitMock.mock.instances[0].issues.update;
 
       createMock.mockResolvedValue({
@@ -675,9 +675,9 @@ describe('RepoKit', () => {
       });
     });
 
-    it('should not call createReviewRequest when reviewers and team reviewers are not defined', async () => {
+    it('should not call requestReviewers when reviewers and team reviewers are not defined', async () => {
       const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.createReviewRequest;
+      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
 
       createMock.mockResolvedValue({
         ...response,
@@ -689,9 +689,9 @@ describe('RepoKit', () => {
       expect(createReviewRequestMock).not.toBeCalled();
     });
 
-    it('should call createReviewRequest when reviewers are defined', async () => {
+    it('should call requestReviewers when reviewers are defined', async () => {
       const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.createReviewRequest;
+      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
 
       createMock.mockResolvedValue({
         ...response,
@@ -703,9 +703,9 @@ describe('RepoKit', () => {
       expect(createReviewRequestMock).toBeCalled();
     });
 
-    it('should call createReviewRequest when team reviewers are defined', async () => {
+    it('should call requestReviewers when team reviewers are defined', async () => {
       const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.createReviewRequest;
+      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
 
       createMock.mockResolvedValue({
         ...response,
