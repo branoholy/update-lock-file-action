@@ -86,7 +86,7 @@ jobs:
         run: npm run test:coverage
         env:
           CI: true
-      - uses: codecov/codecov-action@v1.0.7
+      - uses: codecov/codecov-action@v1.0.10
 
   type-check:
     name: Check types
