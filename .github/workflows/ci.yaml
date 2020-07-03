@@ -28,7 +28,7 @@ jobs:
           }'
           'https://api.github.com/repos/${{ github.repository }}/statuses/${{ fromJSON(env.EVENT_SHA)[github.event_name] }}'
       - name: Checkout
-        uses: actions/checkout@v2.1.0
+        uses: actions/checkout@v2.3.1
       - name: Setup Node.js
         uses: actions/setup-node@v1.4.0
         with:
@@ -49,7 +49,7 @@ jobs:
     needs: install
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.1.0
+        uses: actions/checkout@v2.3.1
       - name: Setup Node.js
         uses: actions/setup-node@v1.4.0
         with:
@@ -71,7 +71,7 @@ jobs:
     needs: install
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.1.0
+        uses: actions/checkout@v2.3.1
       - name: Setup Node.js
         uses: actions/setup-node@v1.4.0
         with:
@@ -94,7 +94,7 @@ jobs:
     needs: install
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.1.0
+        uses: actions/checkout@v2.3.1
       - name: Setup Node.js
         uses: actions/setup-node@v1.4.0
         with:
@@ -116,7 +116,7 @@ jobs:
     needs: install
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.1.0
+        uses: actions/checkout@v2.3.1
       - name: Setup Node.js
         uses: actions/setup-node@v1.4.0
         with:
@@ -138,7 +138,7 @@ jobs:
     needs: install
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.1.0
+        uses: actions/checkout@v2.3.1
       - name: Setup Node.js
         uses: actions/setup-node@v1.4.0
         with:
