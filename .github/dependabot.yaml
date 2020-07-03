@@ -24,6 +24,5 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - branoholy
-    versioning-strategy: increase
     commit-message:
       prefix: DEPS
