@@ -1,10 +1,24 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: '/'
+    directory: /
     schedule:
       interval: daily
       time: '11:00'
+    pull-request-branch-name:
+      separator: '-'
+    open-pull-requests-limit: 10
+    reviewers:
+      - branoholy
+    versioning-strategy: increase
+    commit-message:
+      prefix: DEPS
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+      time: '11:30'
     pull-request-branch-name:
       separator: '-'
     open-pull-requests-limit: 10
