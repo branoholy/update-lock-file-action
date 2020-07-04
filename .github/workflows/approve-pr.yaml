@@ -28,10 +28,20 @@
 # webpack-
 #   webpack, webpack-cli (build)
 #
+# Approved GitHub Actions
+# -----------------------
+# actions/checkout
+# actions/setup-node
+#
 # Other dependencies
 # ------------------
 # @actions/core, @octokit/rest, btoa, envalid
 # diff, husky, lint-staged, node-fetch
+#
+# Other GitHub Actions
+# --------------------
+# actions/cache, branoholy/update-files-action, codecov/codecov-action,
+# hmarr/auto-approve-action, pascalgn/automerge-action
 
 name: Approve PR
 
@@ -43,10 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       (
-        (
-          github.event.pull_request.user.login == 'dependabot[bot]' ||
-          github.event.pull_request.user.login == 'dependabot-preview[bot]'
-        ) &&
+        github.event.pull_request.user.login == 'dependabot[bot]' &&
         (
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
@@ -55,7 +62,9 @@ jobs:
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
           startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
-          startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-')
+          startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-') ||
+          startsWith(github.head_ref, 'dependabot-github_actions-actions-checkout-') ||
+          startsWith(github.head_ref, 'dependabot-github_actions-actions-setup-node-')
         )
       ) ||
       (
