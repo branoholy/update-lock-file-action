@@ -26,3 +26,6 @@ updates:
       - branoholy
     commit-message:
       prefix: DEPS
+    labels:
+      - dependencies
+      - github actions
