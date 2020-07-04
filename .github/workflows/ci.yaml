@@ -86,7 +86,8 @@ jobs:
         run: npm run test:coverage
         env:
           CI: true
-      - uses: codecov/codecov-action@v1.0.10
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v1.0.10
 
   type-check:
     name: Check types
