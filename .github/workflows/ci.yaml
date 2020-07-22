@@ -30,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.1
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.0
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: 14.5.0
       - name: Cache or restore dependencies
@@ -51,7 +51,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.1
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.0
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: 14.5.0
       - name: Cache or restore dependencies
@@ -73,7 +73,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.1
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.0
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: 14.5.0
       - name: Cache or restore dependencies
@@ -97,7 +97,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.1
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.0
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: 14.5.0
       - name: Cache or restore dependencies
@@ -119,7 +119,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.1
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.0
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: 14.5.0
       - name: Cache or restore dependencies
@@ -146,7 +146,7 @@ jobs:
         run: git checkout HEAD^2
         if: github.event_name == 'pull_request'
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.0
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: 14.5.0
       - name: Cache or restore dependencies
@@ -170,7 +170,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.1
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.0
+        uses: actions/setup-node@v2.1.1
         with:
           node-version: 14.5.0
       - name: Cache or restore dependencies
