@@ -100,7 +100,9 @@ describe('RepoKit', () => {
     type: 'type',
     url: 'url',
     encoding: 'encoding',
-    content: 'content'
+    content: 'content',
+    target: 'target',
+    submodule_git_url: 'submodule_git_url'
   };
 
   const directoryContent = [
