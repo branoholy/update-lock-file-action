@@ -68,7 +68,7 @@
     "node-fetch": "2.6.0",
     "prettier": "2.0.5",
     "typescript": "3.9.7",
-    "webpack": "4.44.0",
+    "webpack": "4.44.1",
     "webpack-cli": "3.3.12"
   },
   "husky": {
