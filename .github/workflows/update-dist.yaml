@@ -17,7 +17,7 @@ jobs:
           node-version: 14.7.0
       - name: Cache or restore dependencies
         id: cache-dependencies
-        uses: actions/cache@v2.1.0
+        uses: actions/cache@v2.1.1
         with:
           path: node_modules
           key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
