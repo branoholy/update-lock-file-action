@@ -11,11 +11,14 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module'
   },
-  extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:json/recommended-with-comments'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    'plugin:json/recommended-with-comments'
+  ],
   plugins: ['import', 'simple-import-sort', 'jest', 'markdown'],
   rules: {
-    'no-dupe-class-members': 'off',
-    'no-unused-vars': 'off',
     'sort-imports': 'off',
 
     'import/no-default-export': 'error',
@@ -28,6 +31,9 @@ module.exports = {
     'import/no-unassigned-import': 'error',
     'import/order': 'off',
 
-    'simple-import-sort/sort': 'error'
+    'simple-import-sort/sort': 'error',
+
+    '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off'
   }
 };

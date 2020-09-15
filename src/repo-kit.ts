@@ -142,8 +142,8 @@ export class RepoKit {
     } = await this.getBranch(baseBranch);
 
     const encoding = 'base64';
-    const type: 'blob' = 'blob';
-    const mode: '100644' = '100644';
+    const type = 'blob' as const;
+    const mode = '100644' as const;
 
     const treeBlobs = await Promise.all(
       paths.map(async (path) => {
