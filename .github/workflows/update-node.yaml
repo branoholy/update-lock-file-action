@@ -3,6 +3,7 @@ name: Update Node.js
 on:
   schedule:
     - cron: '0 13 * * 0'
+  workflow_dispatch:
 
 jobs:
   update-node:

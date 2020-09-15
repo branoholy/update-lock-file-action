@@ -3,6 +3,7 @@ name: Update lock file
 on:
   schedule:
     - cron: '0 14 * * 0'
+  workflow_dispatch:
 
 jobs:
   update-lock-file:

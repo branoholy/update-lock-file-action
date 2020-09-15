@@ -3,6 +3,7 @@ name: Update dist
 on:
   push:
     branches: develop
+  workflow_dispatch:
 
 jobs:
   update-dist:
