@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.1
         with:
-          node-version: 14.10.1
+          node-version: 14.11.0
       - name: Update lock file
         uses: branoholy/update-files-action@develop
         with:
