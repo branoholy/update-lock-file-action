@@ -31,7 +31,7 @@
     "stryker": "stryker run"
   },
   "dependencies": {
-    "@actions/core": "1.2.5",
+    "@actions/core": "1.2.6",
     "@octokit/rest": "18.0.6",
     "btoa": "1.2.1",
     "envalid": "6.0.2"
