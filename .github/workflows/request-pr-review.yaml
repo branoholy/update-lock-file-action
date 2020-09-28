@@ -1,0 +1,43 @@
+name: Request PR review
+
+on: pull_request
+
+jobs:
+  request-dependabots-pr-review:
+    name: "Request Dependabot's PR review"
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      !(
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-jest-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-prettier-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-') ||
+        startsWith(github.head_ref, 'dependabot-github_actions-actions-checkout-') ||
+        startsWith(github.head_ref, 'dependabot-github_actions-actions-setup-node-')
+      )
+    steps:
+      - name: Request pull request review
+        uses: kunihiko-t/review-request-action@v0.1.3
+        with:
+          repo-token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          reviewers: branoholy
+
+  request-other-bots-pr-review:
+    name: "Request other bots' PR review"
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.user.login == 'branoholy-bot' &&
+      (
+        github.head_ref == 'deps-update-node'
+      )
+    steps:
+      - name: Request pull request review
+        uses: kunihiko-t/review-request-action@v0.1.3
+        with:
+          repo-token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          reviewers: branoholy
