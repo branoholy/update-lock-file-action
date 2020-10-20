@@ -30,7 +30,7 @@ jobs:
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
           commands: 'npm run build:dist'
-          paths: dist/index.js
+          paths: 'dist/index.js, dist/index.js.LICENSE.txt'
           branch: build-update-dist
           commit-message: 'BUILD: Update dist'
           commit-token: ${{ secrets.GITHUB_TOKEN }}
