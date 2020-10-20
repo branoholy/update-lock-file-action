@@ -4,6 +4,8 @@
 module.exports = (api) => {
   api.cache.using(() => process.env.NODE_ENV === 'development');
 
+  const callerName = api.caller((caller) => caller && caller.name);
+
   return {
     // Preset ordering is reversed (last to first).
     presets: [
@@ -11,7 +13,7 @@ module.exports = (api) => {
         '@babel/preset-env',
         {
           targets: {
-            node: 'current'
+            node: callerName === 'babel-loader' ? '12' : 'current'
           },
           modules: 'commonjs'
         }

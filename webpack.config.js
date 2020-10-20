@@ -6,7 +6,7 @@ const path = require('path');
 // Config
 module.exports = ({ production, development }) => ({
   mode: production ? 'production' : development ? 'development' : 'unknown',
-  target: 'node',
+  target: 'node12',
   output: {
     path: path.resolve(__dirname, 'build/'),
     filename: 'index.js'
