@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 
-const branchPrefixes = ['feature-', 'bugfix-'];
+const branchPrefixes = ['bugfix-', 'deps-', 'docs-', 'feature-', 'refactor-', 'release-', 'repo-'];
 
 const isRebasing = () => {
   try {
@@ -22,9 +22,11 @@ const main = ([commitMessagePath]: string[]) => {
     const branchName = execSync('git symbolic-ref --short HEAD').toString().trim();
 
     if (branchPrefixes.some((branchPrefix) => branchName.startsWith(branchPrefix))) {
-      const [issueType, issueNumber] = branchName.split('-');
+      const [rawIssueType, rawIssueNumber] = branchName.split('-');
+      const issueType = rawIssueType.toUpperCase();
+      const issueNumber = Number(rawIssueNumber);
 
-      const commitMessagePrefix = `${issueType.toUpperCase()} #${issueNumber}: `;
+      const commitMessagePrefix = Number.isInteger(issueNumber) ? `${issueType} #${issueNumber}: ` : `${issueType}: `;
       const commitMessage = readFileSync(commitMessagePath).toString();
 
       if (!commitMessage.startsWith(commitMessagePrefix)) {
