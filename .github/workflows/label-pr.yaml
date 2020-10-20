@@ -1,0 +1,28 @@
+name: Label PR
+
+on:
+  pull_request:
+    types: opened
+
+env:
+  LABELS: '{"${{ startsWith(github.head_ref, ''bugfix-'') }}": "bug", "${{ startsWith(github.head_ref, ''deps-'') }}": "dependencies", "${{ startsWith(github.head_ref, ''docs-'') }}": "documentation", "${{ startsWith(github.head_ref, ''feature-'') }}": "feature", "${{ startsWith(github.head_ref, ''refactor-'') }}": "refactor", "${{ startsWith(github.head_ref, ''release-'') }}": "release", "${{ startsWith(github.head_ref, ''repo-'') }}": "repo"}'
+
+jobs:
+  label-pr:
+    name: Label PR
+    runs-on: ubuntu-latest
+    if: >-
+      startsWith(github.head_ref, 'bugfix-') ||
+      startsWith(github.head_ref, 'deps-') ||
+      startsWith(github.head_ref, 'docs-') ||
+      startsWith(github.head_ref, 'feature-') ||
+      startsWith(github.head_ref, 'refactor-') ||
+      startsWith(github.head_ref, 'release-') ||
+      startsWith(github.head_ref, 'repo-')
+    steps:
+      - name: Add a label
+        uses: christianvuerings/add-labels@v1.1
+        with:
+          labels: ${{ fromJSON(env.LABELS)[true] }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
