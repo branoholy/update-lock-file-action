@@ -22,7 +22,7 @@ module.exports = {
     if (filenames.length > 0 && filenames[0].startsWith('/')) {
       const relativeFilenames = mapToRelative(filenames);
       const tsconfig = {
-        extends: './tsconfig.json',
+        extends: 'tsconfig.json',
         files: relativeFilenames
       };
 
