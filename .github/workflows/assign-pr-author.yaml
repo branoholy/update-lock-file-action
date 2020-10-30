@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set assignee
-        uses: technote-space/assign-author@v1.5.2
+        uses: technote-space/assign-author@v1.5.3
         with:
           GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
