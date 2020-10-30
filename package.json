@@ -44,7 +44,7 @@
     "@babel/preset-env": "7.12.1",
     "@babel/preset-typescript": "7.12.1",
     "@stryker-mutator/core": "4.0.0",
-    "@stryker-mutator/jest-runner": "4.0.0",
+    "@stryker-mutator/jest-runner": "4.1.0",
     "@types/btoa": "1.2.3",
     "@types/diff": "4.0.2",
     "@types/jest": "26.0.15",
