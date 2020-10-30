@@ -11,5 +11,9 @@
 build/
 dist/
 
+# Git hooks
+hooks/*
+!hooks/*.ts
+
 # Lock file
 package-lock.json

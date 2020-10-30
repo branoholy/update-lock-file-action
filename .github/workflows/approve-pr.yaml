@@ -31,7 +31,7 @@
 # Other dependencies
 # ------------------
 # @actions/core, @octokit/rest, btoa, envalid
-# diff, husky, lint-staged, node-fetch
+# diff, lint-staged, node-fetch
 #
 # Approved GitHub Actions
 # -----------------------
