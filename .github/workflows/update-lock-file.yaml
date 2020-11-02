@@ -27,4 +27,3 @@ jobs:
           commit-token: ${{ secrets.GITHUB_TOKEN }}
           body: Automatic update of dependencies in `package-lock.json`.
           labels: dependencies
-          reviewers: branoholy
