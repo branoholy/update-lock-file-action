@@ -31,7 +31,8 @@ module.exports = {
     'import/no-unassigned-import': 'error',
     'import/order': 'off',
 
-    'simple-import-sort/sort': 'error',
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
 
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off'
