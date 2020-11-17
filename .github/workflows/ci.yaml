@@ -87,7 +87,7 @@ jobs:
         env:
           CI: true
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v1.0.14
+        uses: codecov/codecov-action@v1.0.15
 
   type-check:
     name: Check types
