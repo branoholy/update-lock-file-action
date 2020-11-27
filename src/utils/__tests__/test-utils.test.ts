@@ -24,7 +24,7 @@ describe('TestUtils', () => {
       const ClsMock = asMockedClass(Cls);
       const ClsMockWithType: jest.MockedClass<typeof Cls> = ClsMock;
 
-      const getNumMock: jest.MockedFunction<Cls['getNum']> = ClsMock.mock?.instances[0]?.getNum;
+      const getNumMock: jest.MockedFunction<Cls['getNum']> | undefined = ClsMock.mock?.instances[0]?.getNum;
 
       expect(ClsMock).toBe(Cls);
       expect(ClsMockWithType).toBe(Cls);

@@ -109,12 +109,12 @@ describe('app', () => {
 
     expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].hasBranch, [[defaultBranchArg]]);
-    expect(RepoKitMock.mock.instances[0].deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0].getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].createBranch, [[defaultBranchArg, defaultBranchSha]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[defaultBranchArg]]);
+    expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[defaultBranchArg, defaultBranchSha]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].commitFiles, [
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
       [
         {
           branch: defaultBranchArg,
@@ -125,7 +125,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].createPullRequest, [
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
       [
         {
           branch: defaultBranchArg,
@@ -174,18 +174,18 @@ describe('app', () => {
 
     expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].hasBranch, [[branch]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].deleteBranch, [[branch]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].createBranch, [[branch, defaultBranchSha]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.deleteBranch, [[branch]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
-    expect(RepoKitMock.mock.instances[0].commitFiles.mock.calls[0][0]).toMatchObject({
+    expect(RepoKitMock.mock.instances[0]?.commitFiles.mock.calls[0]?.[0]).toMatchObject({
       branch,
       baseBranch: defaultBranch,
       paths: ['path1', 'path2']
     });
 
-    expect(RepoKitMock.mock.instances[0].createPullRequest.mock.calls[0][0]).toMatchObject({
+    expect(RepoKitMock.mock.instances[0]?.createPullRequest.mock.calls[0]?.[0]).toMatchObject({
       branch,
       baseBranch: defaultBranch
     });
@@ -230,18 +230,18 @@ describe('app', () => {
 
     expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].hasBranch, [[branch]]);
-    expect(RepoKitMock.mock.instances[0].deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0].getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].createBranch, [[branch, defaultBranchSha]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
-    expect(RepoKitMock.mock.instances[0].commitFile.mock.calls[0][0]).toMatchObject({
+    expect(RepoKitMock.mock.instances[0]?.commitFile.mock.calls[0]?.[0]).toMatchObject({
       branch,
       baseBranch: defaultBranch,
       path: 'path2'
     });
 
-    expect(RepoKitMock.mock.instances[0].createPullRequest.mock.calls[0][0]).toMatchObject({
+    expect(RepoKitMock.mock.instances[0]?.createPullRequest.mock.calls[0]?.[0]).toMatchObject({
       branch,
       baseBranch: defaultBranch
     });
@@ -288,18 +288,18 @@ describe('app', () => {
       [owner, repositoryName, commitToken]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].hasBranch, [[branch]]);
-    expect(RepoKitMock.mock.instances[0].deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0].getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].createBranch, [[branch, defaultBranchSha]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
-    expect(RepoKitMock.mock.instances[1].commitFiles.mock.calls[0][0]).toMatchObject({
+    expect(RepoKitMock.mock.instances[1]?.commitFiles.mock.calls[0]?.[0]).toMatchObject({
       branch,
       baseBranch: defaultBranch,
       paths: ['path1', 'path2']
     });
 
-    expect(RepoKitMock.mock.instances[0].createPullRequest.mock.calls[0][0]).toMatchObject({
+    expect(RepoKitMock.mock.instances[0]?.createPullRequest.mock.calls[0]?.[0]).toMatchObject({
       branch,
       baseBranch: defaultBranch
     });
@@ -368,12 +368,12 @@ describe('app', () => {
 
     expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].hasBranch, [[branch]]);
-    expect(RepoKitMock.mock.instances[0].deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0].getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].createBranch, [[branch, defaultBranchSha]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].commitFiles, [
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
       [
         {
           branch,
@@ -384,7 +384,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].createPullRequest, [
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
       [
         {
           branch,
@@ -450,12 +450,12 @@ describe('app', () => {
 
     expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].hasBranch, [[branch]]);
-    expect(RepoKitMock.mock.instances[0].deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0].getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0].createBranch, [[branch, defaultBranchSha]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].commitFiles, [
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
       [
         {
           branch,
@@ -466,7 +466,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0].createPullRequest, [
+    expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
       [
         {
           branch,
@@ -489,6 +489,33 @@ describe('app', () => {
       ['Branch "branch" has been created'],
       ['Changed files have been committed'],
       ['Pull request has been created at html_url']
+    ]);
+  });
+
+  /**
+   * Flow #9
+   * -------
+   * - wrong repository is used
+   * - do not run commands
+   * - do not call GitHub API (do not create RepoKit)
+   * - print an error
+   * - return 1
+   */
+  it('flow #9: wrong repository is used', async () => {
+    expect(
+      await app({
+        repository: 'wrong',
+        token,
+        commands,
+        paths
+      })
+    ).toBe(1);
+
+    expect(execSyncMock).not.toBeCalled();
+    expect(RepoKitMock.mock.instances.length).toBe(0);
+
+    expectToBeCalled(consoleErrorMock, [
+      ['Error: Repository "wrong" does not have the valid format (owner/repositoryName)']
     ]);
   });
 });

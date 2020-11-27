@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
-    "noEmit": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "lib": ["ESNext"],
+    "baseUrl": "src/",
     "esModuleInterop": true,
     "isolatedModules": true,
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "noUnusedLocals": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "baseUrl": "src/"
+    "target": "ESNext"
   },
   "exclude": ["node_modules"]
 }

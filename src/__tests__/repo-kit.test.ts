@@ -206,18 +206,18 @@ describe('RepoKit', () => {
     const name = 'branch';
 
     it('should return branch if the input is an existing branch', async () => {
-      const getRefMock = OctokitMock.mock.instances[0].git.getRef;
+      const getRefMock = OctokitMock.mock.instances[0]?.git.getRef;
 
-      getRefMock.mockResolvedValue({ ...response, data: ref });
+      getRefMock?.mockResolvedValue({ ...response, data: ref });
 
       expect(await repoKit.getBranch(name)).toEqual({ name, ...ref });
       expect(getRefMock).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
     });
 
     it('should throw an error if the input is a non-existing branch', async () => {
-      const getRefMock = OctokitMock.mock.instances[0].git.getRef;
+      const getRefMock = OctokitMock.mock.instances[0]?.git.getRef;
 
-      getRefMock.mockImplementation(() => {
+      getRefMock?.mockImplementation(() => {
         throw new Error();
       });
 
@@ -231,18 +231,18 @@ describe('RepoKit', () => {
     const sha = 'sha';
 
     it('should return the newly created branch if it was created successfully', async () => {
-      const createRefMock = OctokitMock.mock.instances[0].git.createRef;
+      const createRefMock = OctokitMock.mock.instances[0]?.git.createRef;
 
-      createRefMock.mockResolvedValue({ ...response, data: ref });
+      createRefMock?.mockResolvedValue({ ...response, data: ref });
 
       expect(await repoKit.createBranch(name, sha)).toEqual(ref);
       expect(createRefMock).toBeCalledWith({ ...repositoryInfo, ref: `refs/heads/${name}`, sha });
     });
 
     it('should throw an error if it was not created successfully', async () => {
-      const createRefMock = OctokitMock.mock.instances[0].git.createRef;
+      const createRefMock = OctokitMock.mock.instances[0]?.git.createRef;
 
-      createRefMock.mockImplementation(() => {
+      createRefMock?.mockImplementation(() => {
         throw new Error();
       });
 
@@ -255,7 +255,7 @@ describe('RepoKit', () => {
     const name = 'branch';
 
     it('should call deleteRef', async () => {
-      const deleteRefMock = OctokitMock.mock.instances[0].git.deleteRef;
+      const deleteRefMock = OctokitMock.mock.instances[0]?.git.deleteRef;
 
       await repoKit.deleteBranch(name);
       expect(deleteRefMock).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
@@ -266,9 +266,9 @@ describe('RepoKit', () => {
     const name = 'default-branch';
 
     it('should return the default branch', async () => {
-      const getMock = OctokitMock.mock.instances[0].repos.get;
+      const getMock = OctokitMock.mock.instances[0]?.repos.get;
 
-      getMock.mockResolvedValue({
+      getMock?.mockResolvedValue({
         ...response,
         data: { default_branch: name } as PromiseValueType<ReturnType<Octokit['repos']['get']>>['data']
       });
@@ -286,9 +286,9 @@ describe('RepoKit', () => {
     const message = 'The requested path is a directory';
 
     it('should return the file info from the default branch if the input is a file path and no branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
+      const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock.mockResolvedValue({
+      getContentsMock?.mockResolvedValue({
         ...response,
         data: fileContent
       });
@@ -298,9 +298,9 @@ describe('RepoKit', () => {
     });
 
     it('should return the file info from the specified branch if the input is a file path and a branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
+      const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock.mockResolvedValue({
+      getContentsMock?.mockResolvedValue({
         ...response,
         data: fileContent
       });
@@ -310,9 +310,9 @@ describe('RepoKit', () => {
     });
 
     it('should throw an error if the input is a directory path and no branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
+      const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock.mockResolvedValue({
+      getContentsMock?.mockResolvedValue({
         ...response,
         // @ts-ignore Wrong typing in @octokit/rest
         data: directoryContent
@@ -323,9 +323,9 @@ describe('RepoKit', () => {
     });
 
     it('should throw an error if the input is a directory path and a branch is specified', async () => {
-      const getContentsMock = OctokitMock.mock.instances[0].repos.getContent;
+      const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock.mockResolvedValue({
+      getContentsMock?.mockResolvedValue({
         ...response,
         // @ts-ignore Wrong typing in @octokit/rest
         data: directoryContent
@@ -366,11 +366,11 @@ describe('RepoKit', () => {
     const baseBranch = 'base-branch';
 
     it('should create the file when it does not exist', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0]?.repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ error: {} });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
-      createOrUpdateFileMock.mockResolvedValue({
+      createOrUpdateFileMock?.mockResolvedValue({
         ...response,
         data: {
           // @ts-ignore Wrong typing in @octokit/rest
@@ -396,11 +396,11 @@ describe('RepoKit', () => {
     });
 
     it('should create the file when it does not exist on the base branch', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0]?.repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ error: {} });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
-      createOrUpdateFileMock.mockResolvedValue({
+      createOrUpdateFileMock?.mockResolvedValue({
         ...response,
         data: {
           // @ts-ignore Wrong typing in @octokit/rest
@@ -426,11 +426,11 @@ describe('RepoKit', () => {
     });
 
     it('should update the file when it exists', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0]?.repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ fileInfo: fileContent });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
-      createOrUpdateFileMock.mockResolvedValue({
+      createOrUpdateFileMock?.mockResolvedValue({
         ...response,
         data: {
           // @ts-ignore Wrong typing in @octokit/rest
@@ -457,11 +457,11 @@ describe('RepoKit', () => {
     });
 
     it('should update the file when it exists on the base branch', async () => {
-      const createOrUpdateFileMock = OctokitMock.mock.instances[0].repos.createOrUpdateFileContents;
+      const createOrUpdateFileMock = OctokitMock.mock.instances[0]?.repos.createOrUpdateFileContents;
 
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ fileInfo: fileContent });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
-      createOrUpdateFileMock.mockResolvedValue({
+      createOrUpdateFileMock?.mockResolvedValue({
         ...response,
         data: {
           // @ts-ignore Wrong typing in @octokit/rest
@@ -499,16 +499,23 @@ describe('RepoKit', () => {
     const tree = { sha: 'tree-sha', tree: [], url: '' };
 
     it('should call all necessary methods in the correct order', async () => {
-      const createBlobMock = OctokitMock.mock.instances[0].git.createBlob;
-      const createTreeMock = OctokitMock.mock.instances[0].git.createTree;
-      const createCommitMock = OctokitMock.mock.instances[0].git.createCommit;
-      const updateRefMock = OctokitMock.mock.instances[0].git.updateRef;
+      const createBlobMock = OctokitMock.mock.instances[0]?.git.createBlob;
+      const createTreeMock = OctokitMock.mock.instances[0]?.git.createTree;
+      const createCommitMock = OctokitMock.mock.instances[0]?.git.createCommit;
+      const updateRefMock = OctokitMock.mock.instances[0]?.git.updateRef;
 
       const getBranchMock = jest.spyOn(repoKit, 'getBranch').mockResolvedValue({ name: branch, ...ref });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
-      paths.forEach((_path, index) => createBlobMock.mockResolvedValueOnce({ ...response, data: blobs[index] }));
-      createTreeMock.mockResolvedValue({ ...response, data: tree });
-      createCommitMock.mockResolvedValue({
+      paths.forEach((_path, index) => {
+        const blob = blobs[index];
+        if (blob === undefined) {
+          throw new Error(`Error: Missing blob data for index ${index}.`);
+        }
+
+        createBlobMock?.mockResolvedValueOnce({ ...response, data: blob });
+      });
+      createTreeMock?.mockResolvedValue({ ...response, data: tree });
+      createCommitMock?.mockResolvedValue({
         ...response,
         // @ts-ignore Wrong typing in @octokit/rest
         data: commit
@@ -556,16 +563,23 @@ describe('RepoKit', () => {
     });
 
     it('should call all necessary methods in the correct order with a custom base branch', async () => {
-      const createBlobMock = OctokitMock.mock.instances[0].git.createBlob;
-      const createTreeMock = OctokitMock.mock.instances[0].git.createTree;
-      const createCommitMock = OctokitMock.mock.instances[0].git.createCommit;
-      const updateRefMock = OctokitMock.mock.instances[0].git.updateRef;
+      const createBlobMock = OctokitMock.mock.instances[0]?.git.createBlob;
+      const createTreeMock = OctokitMock.mock.instances[0]?.git.createTree;
+      const createCommitMock = OctokitMock.mock.instances[0]?.git.createCommit;
+      const updateRefMock = OctokitMock.mock.instances[0]?.git.updateRef;
 
       const getBranchMock = jest.spyOn(repoKit, 'getBranch').mockResolvedValue({ name: baseBranch, ...ref });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
-      paths.forEach((_path, index) => createBlobMock.mockResolvedValueOnce({ ...response, data: blobs[index] }));
-      createTreeMock.mockResolvedValue({ ...response, data: tree });
-      createCommitMock.mockResolvedValue({
+      paths.forEach((_path, index) => {
+        const blob = blobs[index];
+        if (blob === undefined) {
+          throw new Error(`Error: Missing blob data for index ${index}.`);
+        }
+
+        createBlobMock?.mockResolvedValueOnce({ ...response, data: blob });
+      });
+      createTreeMock?.mockResolvedValue({ ...response, data: tree });
+      createCommitMock?.mockResolvedValue({
         ...response,
         // @ts-ignore Wrong typing in @octokit/rest
         data: commit
@@ -628,11 +642,11 @@ describe('RepoKit', () => {
     const pullRequest = { number: 42 } as PromiseValueType<ReturnType<Octokit['pulls']['create']>>['data'];
 
     it('should call all necessary methods in the correct order', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
-      const updateMock = OctokitMock.mock.instances[0].issues.update;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
+      const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
@@ -678,10 +692,10 @@ describe('RepoKit', () => {
     });
 
     it('should not call requestReviewers when reviewers and team reviewers are not defined', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
@@ -692,10 +706,10 @@ describe('RepoKit', () => {
     });
 
     it('should call requestReviewers when reviewers are defined', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
@@ -706,10 +720,10 @@ describe('RepoKit', () => {
     });
 
     it('should call requestReviewers when team reviewers are defined', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0].pulls.requestReviewers;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
@@ -720,10 +734,10 @@ describe('RepoKit', () => {
     });
 
     it('should not call update when labels and assignees and milestone are not defined', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const updateMock = OctokitMock.mock.instances[0].issues.update;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
@@ -734,10 +748,10 @@ describe('RepoKit', () => {
     });
 
     it('should call update when labels are defined', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const updateMock = OctokitMock.mock.instances[0].issues.update;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
@@ -748,10 +762,10 @@ describe('RepoKit', () => {
     });
 
     it('should call update when assignees are defined', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const updateMock = OctokitMock.mock.instances[0].issues.update;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
@@ -762,10 +776,10 @@ describe('RepoKit', () => {
     });
 
     it('should call update when milestone is defined', async () => {
-      const createMock = OctokitMock.mock.instances[0].pulls.create;
-      const updateMock = OctokitMock.mock.instances[0].issues.update;
+      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
+      const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
-      createMock.mockResolvedValue({
+      createMock?.mockResolvedValue({
         ...response,
         data: pullRequest
       });
