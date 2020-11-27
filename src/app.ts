@@ -40,6 +40,13 @@ export const app = async ({
   draft
 }: AppArgs) => {
   try {
+    // Prepare
+    const [owner, repositoryName] = repository.split('/');
+    if (!owner || !repositoryName) {
+      console.error(`Error: Repository "${repository}" does not have the valid format (owner/repositoryName)`);
+      return 1;
+    }
+
     // Run commands
     parseList(commands).forEach((command) => {
       execSync(command);
@@ -61,7 +68,6 @@ export const app = async ({
     }
 
     // Commit the changed files and create a pull request
-    const [owner, repositoryName] = repository.split('/');
     const repoKit = new RepoKit(owner, repositoryName, token);
 
     // Delete the branch if it exists
@@ -89,7 +95,7 @@ export const app = async ({
         baseBranch: defaultBranchName
       };
 
-      if (changedPaths.length === 1) {
+      if (changedPaths.length === 1 && changedPaths[0]) {
         return kit.commitFile({
           path: changedPaths[0],
           ...commitArgs

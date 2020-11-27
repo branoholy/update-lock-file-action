@@ -9,7 +9,7 @@ export const asMockedClass = <T extends jest.Constructable>(cls: T) =>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const expectToBeCalled = <T extends (...args: any[]) => unknown>(
-  fn: jest.MockedFunction<T> | jest.SpiedFunction<T>,
+  fn: jest.MockedFunction<T> | jest.SpiedFunction<T> | undefined,
   params: Parameters<T>[]
 ) => {
   expect(fn).toBeCalledTimes(params.length);

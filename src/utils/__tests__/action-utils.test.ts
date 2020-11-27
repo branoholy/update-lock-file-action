@@ -22,7 +22,7 @@ describe('getInput', () => {
 
     let output = getInput(inputName);
     expect(output).toBe(inputValue);
-    expect(actionsCoreGetInputMock.mock.calls[0][0]).toBe(inputName);
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[0]).toBe(inputName);
 
     output = undefined;
     output = '';
@@ -32,7 +32,7 @@ describe('getInput', () => {
     actionsCoreGetInputMock.mockReturnValue('');
 
     expect(getInput(inputName)).toBeUndefined();
-    expect(actionsCoreGetInputMock.mock.calls[0][0]).toBe(inputName);
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[0]).toBe(inputName);
   });
 
   // Typing check for (string, {}) => string | undefined.
@@ -97,16 +97,16 @@ describe('getInput', () => {
     actionsCoreGetInputMock.mockReturnValue(inputValue);
 
     expect<string>(getInput(inputName, { default: inputDefaultValue })).toBe(inputValue);
-    expect(actionsCoreGetInputMock.mock.calls[0][0]).toBe(inputName);
-    expect(actionsCoreGetInputMock.mock.calls[0][1]).toMatchObject({});
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[0]).toBe(inputName);
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[1]).toMatchObject({});
   });
 
   it('should return the default value if the input is not defined and a default value is specified', () => {
     actionsCoreGetInputMock.mockReturnValue('');
 
     expect(getInput(inputName, { default: inputDefaultValue })).toBe(inputDefaultValue);
-    expect(actionsCoreGetInputMock.mock.calls[0][0]).toBe(inputName);
-    expect(actionsCoreGetInputMock.mock.calls[0][1]).toMatchObject({});
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[0]).toBe(inputName);
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[1]).toMatchObject({});
   });
 
   // Typing check for (string, DefaultInputOptions) => string.
@@ -114,15 +114,15 @@ describe('getInput', () => {
     actionsCoreGetInputMock.mockReturnValue(inputValue);
 
     expect<string>(getInput(inputName, { required: false, default: inputDefaultValue })).toBe(inputValue);
-    expect(actionsCoreGetInputMock.mock.calls[0][0]).toBe(inputName);
-    expect(actionsCoreGetInputMock.mock.calls[0][1]).toMatchObject({ required: false });
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[0]).toBe(inputName);
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[1]).toMatchObject({ required: false });
   });
 
   it('should return the default value if the input is not defined, not required, and a default value is specified', () => {
     actionsCoreGetInputMock.mockReturnValue('');
 
     expect(getInput(inputName, { required: false, default: inputDefaultValue })).toBe(inputDefaultValue);
-    expect(actionsCoreGetInputMock.mock.calls[0][0]).toBe(inputName);
-    expect(actionsCoreGetInputMock.mock.calls[0][1]).toMatchObject({ required: false });
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[0]).toBe(inputName);
+    expect(actionsCoreGetInputMock.mock.calls[0]?.[1]).toMatchObject({ required: false });
   });
 });

@@ -4,32 +4,38 @@ import fetch from 'node-fetch';
 import path from 'path';
 
 interface NodeDist {
-  readonly date: string;
-  readonly files: string[];
-  readonly lts: boolean;
-  readonly modules: string;
-  readonly npm: string;
-  readonly openssl: string;
-  readonly security: boolean;
-  readonly uv: string;
-  readonly v8: string;
   readonly version: string;
-  readonly zlib: string;
 }
+
+const createTypeValidator = <T>(validator: (value: Partial<Record<keyof T, unknown>>) => boolean) => (
+  value: unknown
+): value is T => typeof value === 'object' && value !== null && validator(value);
+
+const isNodeDist = createTypeValidator<NodeDist>((value) => typeof value.version === 'string');
 
 const NODE_DISTS_URL = 'https://nodejs.org/dist/index.json';
 const WORKFLOW_DIRECTORY = '.github/workflows/';
 
-const getNodeDists = (): Promise<readonly NodeDist[]> => fetch(NODE_DISTS_URL).then((req) => req.json());
-
 const getLatestNodeDist = async () => {
-  const nodeVersion = await getNodeDists();
-  return nodeVersion[0];
+  const response = await fetch(NODE_DISTS_URL);
+  const data: unknown = await response.json();
+
+  if (Array.isArray(data) && isNodeDist(data[0])) {
+    return data[0];
+  }
+
+  return null;
 };
 
 const getLatestNodeVersion = async () => {
-  const { version } = await getLatestNodeDist();
-  return version.startsWith('v') ? version.substr(1) : version;
+  const nodeDist = await getLatestNodeDist();
+  const version = nodeDist?.version;
+
+  if (version) {
+    return version.startsWith('v') ? version.substr(1) : version;
+  }
+
+  return null;
 };
 
 const updateNvmrc = (path: string, version: string) => {
@@ -62,10 +68,10 @@ const updatePackageJson = (path: string, version: string) => {
 
   const changeValid =
     addedLines.length === 1 &&
-    addedLines[0].count === 1 &&
+    addedLines[0]?.count === 1 &&
     addedLines[0].value === `    "node": "${version}"\n` &&
     removedLines.length === 1 &&
-    removedLines[0].count === 1;
+    removedLines[0]?.count === 1;
 
   if (!changeValid) {
     throw new Error(`Invalid change of ${path}`);
@@ -84,9 +90,9 @@ const updateWorkflowYaml = (path: string, version: string) => {
   const nextLines = lines.map((line) => {
     const [fieldName, fieldValue] = line.trim().split(':');
 
-    if (fieldName === 'node-version' && fieldValue.trim() !== version) {
+    if (fieldName === 'node-version' && fieldValue?.trim() !== version) {
       changed = true;
-      const indentSize = line.indexOf(fieldName[0]);
+      const indentSize = line.indexOf(fieldName[0] ?? 'n');
 
       return `${' '.repeat(indentSize)}${fieldName}: ${version}`;
     }
@@ -108,16 +114,16 @@ const createUpdateFile = (version: string) => (
   path: string,
   updateFunction: (path: string, version: string) => boolean
 ) => {
-  process.stdout.write(`Updating ${path}... `);
+  process.stdout.write(`Updating ${path} ... `);
 
   try {
     if (updateFunction(path, version)) {
-      console.info('Done');
+      console.info('✅ Done');
     } else {
-      console.info('Not required');
+      console.info('✅ Not required');
     }
   } catch (error) {
-    console.error('Failed');
+    console.error('❌ Failed');
     throw error;
   }
 };
@@ -125,7 +131,12 @@ const createUpdateFile = (version: string) => (
 const main = async () => {
   try {
     const latestNodeVersion = await getLatestNodeVersion();
-    console.info(`Trying to update Node.js to ${latestNodeVersion}`);
+    if (!latestNodeVersion) {
+      console.error('Error: Unknown latest Node.js version');
+      return 1;
+    }
+
+    console.info(`Info: Trying to update Node.js to ${latestNodeVersion}`);
 
     const updateFile = createUpdateFile(latestNodeVersion);
 

@@ -13,8 +13,13 @@ const isRebasing = () => {
 };
 
 const main = ([commitMessagePath]: string[]) => {
+  if (!commitMessagePath) {
+    console.error('Error: Missing commit message path.');
+    return 0;
+  }
+
   if (isRebasing()) {
-    console.log('No commit message prefix while rebasing.');
+    console.info('Info: No commit message prefix while rebasing.');
     return 0;
   }
 
@@ -23,7 +28,7 @@ const main = ([commitMessagePath]: string[]) => {
 
     if (branchPrefixes.some((branchPrefix) => branchName.startsWith(branchPrefix))) {
       const [rawIssueType, rawIssueNumber] = branchName.split('-');
-      const issueType = rawIssueType.toUpperCase();
+      const issueType = rawIssueType?.toUpperCase();
       const issueNumber = Number(rawIssueNumber);
 
       const commitMessagePrefix = Number.isInteger(issueNumber) ? `${issueType} #${issueNumber}: ` : `${issueType}: `;
@@ -34,7 +39,7 @@ const main = ([commitMessagePath]: string[]) => {
       }
     }
   } catch (error) {
-    console.error('Cannot create commit message prefix.');
+    console.error('Error: Cannot create commit message prefix.');
     console.error(error);
   }
 
