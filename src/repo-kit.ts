@@ -91,23 +91,31 @@ export class RepoKit {
   }
 
   async getDefaultBranch() {
-    const { data } = await this.octokit.repos.get(this.getRepositoryInfo());
+    const response = await this.octokit.repos.get(this.getRepositoryInfo());
 
-    return this.getBranch(data.default_branch);
+    if (response.status !== 200) {
+      throw new Error(`Fetch for the default branch failed with the status code ${response.status}`);
+    }
+
+    return this.getBranch(response.data.default_branch);
   }
 
   async getFileInfo(path: string, branch?: string) {
-    const { data } = await this.octokit.repos.getContent({
+    const response = await this.octokit.repos.getContent({
       ...this.getRepositoryInfo(),
       path,
       ...(branch ? { ref: `heads/${branch}` } : {})
     });
 
-    if (Array.isArray(data)) {
+    if (response.status !== 200) {
+      throw new Error(`Fetch for the requested path failed with the status code ${response.status}`);
+    }
+
+    if (Array.isArray(response.data)) {
       throw new Error('The requested path is a directory');
     }
 
-    return data;
+    return response.data;
   }
 
   async tryGetFileInfo(path: string, branch?: string) {
