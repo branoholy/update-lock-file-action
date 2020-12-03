@@ -68,9 +68,28 @@ describe('RepoKit', () => {
   const repositoryInfo = { owner, repo };
 
   const response = {
-    headers: {},
-    status: 0,
+    headers: {} as PromiseValueType<ReturnType<Octokit['git']['createRef']>>['headers'],
     url: 'url'
+  };
+
+  const response200 = {
+    ...response,
+    status: 200 as const
+  };
+
+  const response201 = {
+    ...response,
+    status: 201 as const
+  };
+
+  const response301 = {
+    ...response,
+    status: 301 as const
+  };
+
+  const response302 = {
+    ...response,
+    status: 302 as const
   };
 
   const ref = {
@@ -134,7 +153,14 @@ describe('RepoKit', () => {
     sha: 'commit-sha',
     tree: { sha: 'tree-sha', url: '' },
     url: 'url',
-    verification: { payload: null, reason: 'reason', signature: null, verified: false }
+    verification: {
+      // @ts-ignore Wrong typing in @octokit/rest for payload
+      payload: null as string,
+      reason: 'unsigned',
+      // @ts-ignore Wrong typing in @octokit/rest for signature
+      signature: null as string,
+      verified: false
+    }
   };
 
   let repoKit: RepoKit;
@@ -208,7 +234,7 @@ describe('RepoKit', () => {
     it('should return branch if the input is an existing branch', async () => {
       const getRefMock = OctokitMock.mock.instances[0]?.git.getRef;
 
-      getRefMock?.mockResolvedValue({ ...response, data: ref });
+      getRefMock?.mockResolvedValue({ ...response200, data: ref });
 
       expect(await repoKit.getBranch(name)).toEqual({ name, ...ref });
       expect(getRefMock).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
@@ -233,7 +259,7 @@ describe('RepoKit', () => {
     it('should return the newly created branch if it was created successfully', async () => {
       const createRefMock = OctokitMock.mock.instances[0]?.git.createRef;
 
-      createRefMock?.mockResolvedValue({ ...response, data: ref });
+      createRefMock?.mockResolvedValue({ ...response201, data: ref });
 
       expect(await repoKit.createBranch(name, sha)).toEqual(ref);
       expect(createRefMock).toBeCalledWith({ ...repositoryInfo, ref: `refs/heads/${name}`, sha });
@@ -264,32 +290,44 @@ describe('RepoKit', () => {
 
   describe('getDefaultBranch', () => {
     const name = 'default-branch';
+    const message = 'Fetch for the default branch failed with the status code 301';
 
     it('should return the default branch', async () => {
       const getMock = OctokitMock.mock.instances[0]?.repos.get;
 
       getMock?.mockResolvedValue({
-        ...response,
-        data: { default_branch: name } as PromiseValueType<ReturnType<Octokit['repos']['get']>>['data']
-      });
+        ...response200,
+        data: { default_branch: name }
+      } as PromiseValueType<ReturnType<Octokit['repos']['get']>>);
       const getBranchMock = jest.spyOn(repoKit, 'getBranch').mockResolvedValue({ name, ...ref });
 
       expect(await repoKit.getDefaultBranch()).toEqual({ name, ...ref });
       expect(getMock).toBeCalledWith(repositoryInfo);
       expect(getBranchMock).toBeCalledWith(name);
     });
+
+    it('should throw an error if the request has status 301', async () => {
+      const getMock = OctokitMock.mock.instances[0]?.repos.get;
+
+      getMock?.mockResolvedValue({
+        ...response301,
+        data: undefined
+      });
+
+      await expect(repoKit.getDefaultBranch()).rejects.toMatchObject({ message });
+      expect(getMock).toBeCalledWith(repositoryInfo);
+    });
   });
 
   describe('getFileInfo', () => {
     const path = 'path';
     const branch = 'branch';
-    const message = 'The requested path is a directory';
 
     it('should return the file info from the default branch if the input is a file path and no branch is specified', async () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
       getContentsMock?.mockResolvedValue({
-        ...response,
+        ...response200,
         data: fileContent
       });
 
@@ -301,7 +339,7 @@ describe('RepoKit', () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
       getContentsMock?.mockResolvedValue({
-        ...response,
+        ...response200,
         data: fileContent
       });
 
@@ -313,12 +351,11 @@ describe('RepoKit', () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
       getContentsMock?.mockResolvedValue({
-        ...response,
-        // @ts-ignore Wrong typing in @octokit/rest
+        ...response200,
         data: directoryContent
       });
 
-      await expect(repoKit.getFileInfo(path)).rejects.toMatchObject({ message });
+      await expect(repoKit.getFileInfo(path)).rejects.toMatchObject({ message: 'The requested path is a directory' });
       expect(getContentsMock).toBeCalledWith({ ...repositoryInfo, path });
     });
 
@@ -326,12 +363,41 @@ describe('RepoKit', () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
       getContentsMock?.mockResolvedValue({
-        ...response,
-        // @ts-ignore Wrong typing in @octokit/rest
+        ...response200,
         data: directoryContent
       });
 
-      await expect(repoKit.getFileInfo(path, branch)).rejects.toMatchObject({ message });
+      await expect(repoKit.getFileInfo(path, branch)).rejects.toMatchObject({
+        message: 'The requested path is a directory'
+      });
+      expect(getContentsMock).toBeCalledWith({ ...repositoryInfo, path, ref: `heads/${branch}` });
+    });
+
+    it('should throw an error if the request has status 302 and no branch is specified', async () => {
+      const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
+
+      getContentsMock?.mockResolvedValue({
+        ...response302,
+        data: undefined
+      });
+
+      await expect(repoKit.getFileInfo(path)).rejects.toMatchObject({
+        message: 'Fetch for the requested path failed with the status code 302'
+      });
+      expect(getContentsMock).toBeCalledWith({ ...repositoryInfo, path });
+    });
+
+    it('should throw an error if the request has status 302 and a branch is specified', async () => {
+      const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
+
+      getContentsMock?.mockResolvedValue({
+        ...response302,
+        data: undefined
+      });
+
+      await expect(repoKit.getFileInfo(path, branch)).rejects.toMatchObject({
+        message: 'Fetch for the requested path failed with the status code 302'
+      });
       expect(getContentsMock).toBeCalledWith({ ...repositoryInfo, path, ref: `heads/${branch}` });
     });
   });
@@ -371,9 +437,8 @@ describe('RepoKit', () => {
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ error: {} });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
       createOrUpdateFileMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: {
-          // @ts-ignore Wrong typing in @octokit/rest
           commit,
           content: fileContent
         }
@@ -401,9 +466,8 @@ describe('RepoKit', () => {
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ error: {} });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
       createOrUpdateFileMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: {
-          // @ts-ignore Wrong typing in @octokit/rest
           commit,
           content: fileContent
         }
@@ -431,9 +495,8 @@ describe('RepoKit', () => {
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ fileInfo: fileContent });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
       createOrUpdateFileMock?.mockResolvedValue({
-        ...response,
+        ...response200,
         data: {
-          // @ts-ignore Wrong typing in @octokit/rest
           commit,
           content: fileContent
         }
@@ -462,9 +525,8 @@ describe('RepoKit', () => {
       const tryGetFileInfoMock = jest.spyOn(repoKit, 'tryGetFileInfo').mockResolvedValue({ fileInfo: fileContent });
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
       createOrUpdateFileMock?.mockResolvedValue({
-        ...response,
+        ...response200,
         data: {
-          // @ts-ignore Wrong typing in @octokit/rest
           commit,
           content: fileContent
         }
@@ -496,7 +558,7 @@ describe('RepoKit', () => {
 
     const blobs = paths.map((path) => ({ sha: `blob-${path}-sha`, url: '' }));
 
-    const tree = { sha: 'tree-sha', tree: [], url: '' };
+    const tree = { sha: 'tree-sha', tree: [], truncated: false, url: '' };
 
     it('should call all necessary methods in the correct order', async () => {
       const createBlobMock = OctokitMock.mock.instances[0]?.git.createBlob;
@@ -512,12 +574,11 @@ describe('RepoKit', () => {
           throw new Error(`Error: Missing blob data for index ${index}.`);
         }
 
-        createBlobMock?.mockResolvedValueOnce({ ...response, data: blob });
+        createBlobMock?.mockResolvedValueOnce({ ...response201, data: blob });
       });
-      createTreeMock?.mockResolvedValue({ ...response, data: tree });
+      createTreeMock?.mockResolvedValue({ ...response201, data: tree });
       createCommitMock?.mockResolvedValue({
-        ...response,
-        // @ts-ignore Wrong typing in @octokit/rest
+        ...response201,
         data: commit
       });
 
@@ -576,12 +637,11 @@ describe('RepoKit', () => {
           throw new Error(`Error: Missing blob data for index ${index}.`);
         }
 
-        createBlobMock?.mockResolvedValueOnce({ ...response, data: blob });
+        createBlobMock?.mockResolvedValueOnce({ ...response201, data: blob });
       });
-      createTreeMock?.mockResolvedValue({ ...response, data: tree });
+      createTreeMock?.mockResolvedValue({ ...response201, data: tree });
       createCommitMock?.mockResolvedValue({
-        ...response,
-        // @ts-ignore Wrong typing in @octokit/rest
+        ...response201,
         data: commit
       });
 
@@ -647,7 +707,7 @@ describe('RepoKit', () => {
       const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
@@ -696,7 +756,7 @@ describe('RepoKit', () => {
       const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
@@ -710,7 +770,7 @@ describe('RepoKit', () => {
       const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
@@ -724,7 +784,7 @@ describe('RepoKit', () => {
       const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
@@ -738,7 +798,7 @@ describe('RepoKit', () => {
       const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
@@ -752,7 +812,7 @@ describe('RepoKit', () => {
       const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
@@ -766,7 +826,7 @@ describe('RepoKit', () => {
       const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
@@ -780,7 +840,7 @@ describe('RepoKit', () => {
       const updateMock = OctokitMock.mock.instances[0]?.issues.update;
 
       createMock?.mockResolvedValue({
-        ...response,
+        ...response201,
         data: pullRequest
       });
 
