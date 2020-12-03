@@ -2,7 +2,7 @@ import envalid from 'envalid';
 
 import { app } from '../app';
 import { main } from '../main';
-import { getInput } from '../utils/action-utils';
+import { DefaultInputOptions, getInput, NonRequiredInputOptions, RequiredInputOptions } from '../utils/action-utils';
 import { asMockedFunction, expectToBeCalled } from '../utils/test-utils';
 
 const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation();
@@ -19,6 +19,13 @@ const appMock = asMockedFunction(app);
 
 jest.mock('../utils/action-utils');
 const getInputMock = asMockedFunction(getInput);
+
+type GetInputMock =
+  | jest.MockedFunction<(name: string) => string | undefined>
+  | jest.MockedFunction<(name: string, options: RequiredInputOptions) => string>
+  | jest.MockedFunction<(name: string, options: DefaultInputOptions) => string>
+  | jest.MockedFunction<(name: string, options: NonRequiredInputOptions) => string | undefined>;
+const getInputOverloadedMock = getInputMock as GetInputMock;
 
 describe('main', () => {
   const repository = 'github-repository';
@@ -54,7 +61,7 @@ describe('main', () => {
   it('should run app with required args and exit with 0', async () => {
     mockEnv();
 
-    getInputMock
+    asMockedFunction(getInput)
       .mockReturnValueOnce('token')
       .mockReturnValueOnce('commands')
       .mockReturnValueOnce('paths')
@@ -67,20 +74,20 @@ describe('main', () => {
     expectEnvToBeCalled();
 
     expect(getInputMock).toBeCalledTimes(14);
-    expect(getInputMock).nthCalledWith(1, 'token', { required: true });
-    expect(getInputMock).nthCalledWith(2, 'commands', { required: true });
-    expect(getInputMock).nthCalledWith(3, 'paths', { required: true });
-    expect(getInputMock).nthCalledWith(4, 'branch');
-    expect(getInputMock).nthCalledWith(5, 'commit-message');
-    expect(getInputMock).nthCalledWith(6, 'commit-token');
-    expect(getInputMock).nthCalledWith(7, 'title');
-    expect(getInputMock).nthCalledWith(8, 'body');
-    expect(getInputMock).nthCalledWith(9, 'labels');
-    expect(getInputMock).nthCalledWith(10, 'assignees');
-    expect(getInputMock).nthCalledWith(11, 'reviewers');
-    expect(getInputMock).nthCalledWith(12, 'team-reviewers');
-    expect(getInputMock).nthCalledWith(13, 'milestone');
-    expect(getInputMock).nthCalledWith(14, 'draft');
+    expect(getInputOverloadedMock).nthCalledWith(1, 'token', { required: true });
+    expect(getInputOverloadedMock).nthCalledWith(2, 'commands', { required: true });
+    expect(getInputOverloadedMock).nthCalledWith(3, 'paths', { required: true });
+    expect(getInputOverloadedMock).nthCalledWith(4, 'branch');
+    expect(getInputOverloadedMock).nthCalledWith(5, 'commit-message');
+    expect(getInputOverloadedMock).nthCalledWith(6, 'commit-token');
+    expect(getInputOverloadedMock).nthCalledWith(7, 'title');
+    expect(getInputOverloadedMock).nthCalledWith(8, 'body');
+    expect(getInputOverloadedMock).nthCalledWith(9, 'labels');
+    expect(getInputOverloadedMock).nthCalledWith(10, 'assignees');
+    expect(getInputOverloadedMock).nthCalledWith(11, 'reviewers');
+    expect(getInputOverloadedMock).nthCalledWith(12, 'team-reviewers');
+    expect(getInputOverloadedMock).nthCalledWith(13, 'milestone');
+    expect(getInputOverloadedMock).nthCalledWith(14, 'draft');
 
     expectToBeCalled(appMock, [
       [
