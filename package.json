@@ -41,7 +41,7 @@
     "@babel/cli": "7.12.8",
     "@babel/core": "7.12.9",
     "@babel/node": "7.12.6",
-    "@babel/preset-env": "7.12.7",
+    "@babel/preset-env": "7.12.10",
     "@babel/preset-typescript": "7.12.7",
     "@stryker-mutator/core": "4.0.0",
     "@stryker-mutator/jest-runner": "4.1.1",
