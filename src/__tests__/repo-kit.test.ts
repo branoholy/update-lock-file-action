@@ -309,10 +309,7 @@ describe('RepoKit', () => {
     it('should throw an error if the request has status 301', async () => {
       const getMock = OctokitMock.mock.instances[0]?.repos.get;
 
-      getMock?.mockResolvedValue({
-        ...response301,
-        data: undefined
-      });
+      getMock?.mockResolvedValue((response301 as unknown) as PromiseValueType<ReturnType<typeof getMock>>);
 
       await expect(repoKit.getDefaultBranch()).rejects.toMatchObject({ message });
       expect(getMock).toBeCalledWith(repositoryInfo);
@@ -376,10 +373,9 @@ describe('RepoKit', () => {
     it('should throw an error if the request has status 302 and no branch is specified', async () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock?.mockResolvedValue({
-        ...response302,
-        data: undefined
-      });
+      getContentsMock?.mockResolvedValue(
+        (response302 as unknown) as PromiseValueType<ReturnType<typeof getContentsMock>>
+      );
 
       await expect(repoKit.getFileInfo(path)).rejects.toMatchObject({
         message: 'Fetch for the requested path failed with the status code 302'
@@ -390,10 +386,9 @@ describe('RepoKit', () => {
     it('should throw an error if the request has status 302 and a branch is specified', async () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock?.mockResolvedValue({
-        ...response302,
-        data: undefined
-      });
+      getContentsMock?.mockResolvedValue(
+        (response302 as unknown) as PromiseValueType<ReturnType<typeof getContentsMock>>
+      );
 
       await expect(repoKit.getFileInfo(path, branch)).rejects.toMatchObject({
         message: 'Fetch for the requested path failed with the status code 302'
