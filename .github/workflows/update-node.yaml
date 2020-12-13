@@ -29,8 +29,8 @@ jobs:
         uses: branoholy/update-files-action@develop
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
-          commands: npm run node-versions-update
-          paths: '.nvmrc, package.json'
+          commands: npm run node-versions-update && npm i
+          paths: '.nvmrc, package.json, package-lock.json'
           branch: deps-update-node
           commit-message: 'DEPS: Update Node.js'
           commit-token: ${{ secrets.GITHUB_TOKEN }}
@@ -42,9 +42,6 @@ jobs:
             You can use the following commands to update, commit, and push the workflow files.
 
             ```text
-            git fetch
-            git checkout deps-update-node
-            git reset --hard origin/deps-update-node
             npm run node-versions-update
             git add .github/workflows/
             git commit -m "DEPS: Update Node.js in workflow files"
