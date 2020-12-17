@@ -2,36 +2,34 @@ import envalid from 'envalid';
 
 import { app } from '../app';
 import { main } from '../main';
-import { DefaultInputOptions, getInput, NonRequiredInputOptions, RequiredInputOptions } from '../utils/action-utils';
-import { asMockedFunction, expectToBeCalled } from '../utils/test-utils';
+import { ActionUtils } from '../utils/action-utils';
+import { TestUtils } from '../utils/test-utils';
 
 const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation();
 const processExitMock = jest.spyOn(process, 'exit').mockImplementation();
 
 jest.mock('envalid');
 const envalidMock = {
-  cleanEnv: asMockedFunction(envalid.cleanEnv),
-  str: asMockedFunction(envalid.str)
+  cleanEnv: TestUtils.asMockedFunction(envalid.cleanEnv),
+  str: TestUtils.asMockedFunction(envalid.str)
 };
 
 jest.mock('../app');
-const appMock = asMockedFunction(app);
+const appMock = TestUtils.asMockedFunction(app);
 
 jest.mock('../utils/action-utils');
-const getInputMock = asMockedFunction(getInput);
-
-type GetInputMock =
-  | jest.MockedFunction<(name: string) => string | undefined>
-  | jest.MockedFunction<(name: string, options: RequiredInputOptions) => string>
-  | jest.MockedFunction<(name: string, options: DefaultInputOptions) => string>
-  | jest.MockedFunction<(name: string, options: NonRequiredInputOptions) => string | undefined>;
-const getInputOverloadedMock = getInputMock as GetInputMock;
+const ActionUtilsMock = {
+  getInputAsBoolean: TestUtils.asMockedFunction(ActionUtils.getInputAsBoolean),
+  getInputAsInteger: TestUtils.asMockedFunction(ActionUtils.getInputAsInteger),
+  getInputAsString: TestUtils.asMockedFunction(ActionUtils.getInputAsString),
+  getInputAsStrings: TestUtils.asMockedFunction(ActionUtils.getInputAsStrings)
+};
 
 describe('main', () => {
   const repository = 'github-repository';
   const token = 'token';
-  const commands = 'commands';
-  const paths = 'paths';
+  const commands = ['command1', 'command2'];
+  const paths = ['path1', 'path2'];
 
   const mockEnv = () => {
     envalidMock.str.mockReturnValue({
@@ -45,7 +43,7 @@ describe('main', () => {
   };
 
   const expectEnvToBeCalled = () =>
-    expectToBeCalled(envalidMock.cleanEnv, [
+    TestUtils.expectToBeCalled(envalidMock.cleanEnv, [
       [
         process.env,
         {
@@ -61,10 +59,11 @@ describe('main', () => {
   it('should run app with required args and exit with 0', async () => {
     mockEnv();
 
-    asMockedFunction(getInput)
-      .mockReturnValueOnce('token')
-      .mockReturnValueOnce('commands')
-      .mockReturnValueOnce('paths')
+    TestUtils.asMockedFunction(ActionUtilsMock.getInputAsString).mockReturnValueOnce(token).mockReturnValue(undefined);
+
+    TestUtils.asMockedFunction(ActionUtilsMock.getInputAsStrings)
+      .mockReturnValueOnce(commands)
+      .mockReturnValueOnce(paths)
       .mockReturnValue(undefined);
 
     appMock.mockResolvedValue(0);
@@ -73,23 +72,29 @@ describe('main', () => {
 
     expectEnvToBeCalled();
 
-    expect(getInputMock).toBeCalledTimes(14);
-    expect(getInputOverloadedMock).nthCalledWith(1, 'token', { required: true });
-    expect(getInputOverloadedMock).nthCalledWith(2, 'commands', { required: true });
-    expect(getInputOverloadedMock).nthCalledWith(3, 'paths', { required: true });
-    expect(getInputOverloadedMock).nthCalledWith(4, 'branch');
-    expect(getInputOverloadedMock).nthCalledWith(5, 'commit-message');
-    expect(getInputOverloadedMock).nthCalledWith(6, 'commit-token');
-    expect(getInputOverloadedMock).nthCalledWith(7, 'title');
-    expect(getInputOverloadedMock).nthCalledWith(8, 'body');
-    expect(getInputOverloadedMock).nthCalledWith(9, 'labels');
-    expect(getInputOverloadedMock).nthCalledWith(10, 'assignees');
-    expect(getInputOverloadedMock).nthCalledWith(11, 'reviewers');
-    expect(getInputOverloadedMock).nthCalledWith(12, 'team-reviewers');
-    expect(getInputOverloadedMock).nthCalledWith(13, 'milestone');
-    expect(getInputOverloadedMock).nthCalledWith(14, 'draft');
+    expect(ActionUtilsMock.getInputAsBoolean).toBeCalledTimes(1);
+    expect(ActionUtilsMock.getInputAsBoolean).nthCalledWith(1, 'draft');
 
-    expectToBeCalled(appMock, [
+    expect(ActionUtilsMock.getInputAsInteger).toBeCalledTimes(1);
+    expect(ActionUtilsMock.getInputAsInteger).nthCalledWith(1, 'milestone');
+
+    expect(ActionUtilsMock.getInputAsString).toBeCalledTimes(6);
+    expect(ActionUtilsMock.getInputAsString).nthCalledWith(1, 'token', { required: true });
+    expect(ActionUtilsMock.getInputAsString).nthCalledWith(2, 'branch');
+    expect(ActionUtilsMock.getInputAsString).nthCalledWith(3, 'commit-message');
+    expect(ActionUtilsMock.getInputAsString).nthCalledWith(4, 'commit-token');
+    expect(ActionUtilsMock.getInputAsString).nthCalledWith(5, 'title');
+    expect(ActionUtilsMock.getInputAsString).nthCalledWith(6, 'body');
+
+    expect(ActionUtilsMock.getInputAsStrings).toBeCalledTimes(6);
+    expect(ActionUtilsMock.getInputAsStrings).nthCalledWith(1, 'commands', { required: true });
+    expect(ActionUtilsMock.getInputAsStrings).nthCalledWith(2, 'paths', { required: true });
+    expect(ActionUtilsMock.getInputAsStrings).nthCalledWith(3, 'labels');
+    expect(ActionUtilsMock.getInputAsStrings).nthCalledWith(4, 'assignees');
+    expect(ActionUtilsMock.getInputAsStrings).nthCalledWith(5, 'reviewers');
+    expect(ActionUtilsMock.getInputAsStrings).nthCalledWith(6, 'team-reviewers');
+
+    TestUtils.expectToBeCalled(appMock, [
       [
         {
           repository,
@@ -111,7 +116,7 @@ describe('main', () => {
       ]
     ]);
 
-    expectToBeCalled(processExitMock, [[0]]);
+    TestUtils.expectToBeCalled(processExitMock, [[0]]);
 
     expect(consoleErrorMock).not.toBeCalled();
   });
@@ -143,7 +148,7 @@ describe('main', () => {
 
     expectEnvToBeCalled();
 
-    expectToBeCalled(consoleErrorMock, [[errorMessage]]);
-    expectToBeCalled(processExitMock, [[1]]);
+    TestUtils.expectToBeCalled(consoleErrorMock, [[errorMessage]]);
+    TestUtils.expectToBeCalled(processExitMock, [[1]]);
   });
 });

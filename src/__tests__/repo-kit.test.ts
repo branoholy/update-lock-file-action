@@ -2,11 +2,11 @@ import { Octokit } from '@octokit/rest';
 import { readFileSync } from 'fs';
 
 import { RepoKit } from '../repo-kit';
-import { asMockedFunction } from '../utils/test-utils';
-import { Callable, PromiseValueType } from '../utils/type-utils';
+import { TestUtils } from '../utils/test-utils';
+import { Awaited, ExtractCallable } from '../utils/type-utils';
 
 jest.mock('fs');
-const readFileSyncMock = asMockedFunction(readFileSync);
+const readFileSyncMock = TestUtils.asMockedFunction(readFileSync);
 
 type MockedOctokit = {
   git: {
@@ -17,16 +17,18 @@ type MockedOctokit = {
       | 'createBlob'
       | 'createTree'
       | 'createCommit'
-      | 'updateRef']: jest.MockedFunction<Callable<Octokit['git'][fn]>>;
+      | 'updateRef']: jest.MockedFunction<ExtractCallable<Octokit['git'][fn]>>;
   };
   issues: {
-    [fn in 'update']: jest.MockedFunction<Callable<Octokit['issues'][fn]>>;
+    [fn in 'update']: jest.MockedFunction<ExtractCallable<Octokit['issues'][fn]>>;
   };
   pulls: {
-    [fn in 'create' | 'requestReviewers']: jest.MockedFunction<Callable<Octokit['pulls'][fn]>>;
+    [fn in 'create' | 'requestReviewers']: jest.MockedFunction<ExtractCallable<Octokit['pulls'][fn]>>;
   };
   repos: {
-    [fn in 'get' | 'getContent' | 'createOrUpdateFileContents']: jest.MockedFunction<Callable<Octokit['repos'][fn]>>;
+    [fn in 'get' | 'getContent' | 'createOrUpdateFileContents']: jest.MockedFunction<
+      ExtractCallable<Octokit['repos'][fn]>
+    >;
   };
 };
 
@@ -68,7 +70,7 @@ describe('RepoKit', () => {
   const repositoryInfo = { owner, repo };
 
   const response = {
-    headers: {} as PromiseValueType<ReturnType<Octokit['git']['createRef']>>['headers'],
+    headers: {} as Awaited<ReturnType<Octokit['git']['createRef']>>['headers'],
     url: 'url'
   };
 
@@ -298,7 +300,7 @@ describe('RepoKit', () => {
       getMock?.mockResolvedValue({
         ...response200,
         data: { default_branch: name }
-      } as PromiseValueType<ReturnType<Octokit['repos']['get']>>);
+      } as Awaited<ReturnType<Octokit['repos']['get']>>);
       const getBranchMock = jest.spyOn(repoKit, 'getBranch').mockResolvedValue({ name, ...ref });
 
       expect(await repoKit.getDefaultBranch()).toEqual({ name, ...ref });
@@ -309,7 +311,7 @@ describe('RepoKit', () => {
     it('should throw an error if the request has status 301', async () => {
       const getMock = OctokitMock.mock.instances[0]?.repos.get;
 
-      getMock?.mockResolvedValue((response301 as unknown) as PromiseValueType<ReturnType<typeof getMock>>);
+      getMock?.mockResolvedValue((response301 as unknown) as Awaited<ReturnType<typeof getMock>>);
 
       await expect(repoKit.getDefaultBranch()).rejects.toMatchObject({ message });
       expect(getMock).toBeCalledWith(repositoryInfo);
@@ -373,9 +375,7 @@ describe('RepoKit', () => {
     it('should throw an error if the request has status 302 and no branch is specified', async () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock?.mockResolvedValue(
-        (response302 as unknown) as PromiseValueType<ReturnType<typeof getContentsMock>>
-      );
+      getContentsMock?.mockResolvedValue((response302 as unknown) as Awaited<ReturnType<typeof getContentsMock>>);
 
       await expect(repoKit.getFileInfo(path)).rejects.toMatchObject({
         message: 'Fetch for the requested path failed with the status code 302'
@@ -386,9 +386,7 @@ describe('RepoKit', () => {
     it('should throw an error if the request has status 302 and a branch is specified', async () => {
       const getContentsMock = OctokitMock.mock.instances[0]?.repos.getContent;
 
-      getContentsMock?.mockResolvedValue(
-        (response302 as unknown) as PromiseValueType<ReturnType<typeof getContentsMock>>
-      );
+      getContentsMock?.mockResolvedValue((response302 as unknown) as Awaited<ReturnType<typeof getContentsMock>>);
 
       await expect(repoKit.getFileInfo(path, branch)).rejects.toMatchObject({
         message: 'Fetch for the requested path failed with the status code 302'
@@ -694,7 +692,7 @@ describe('RepoKit', () => {
     const milestone = 1;
     const draft = true;
 
-    const pullRequest = { number: 42 } as PromiseValueType<ReturnType<Octokit['pulls']['create']>>['data'];
+    const pullRequest = { number: 42 } as Awaited<ReturnType<Octokit['pulls']['create']>>['data'];
 
     it('should call all necessary methods in the correct order', async () => {
       const createMock = OctokitMock.mock.instances[0]?.pulls.create;

@@ -1,25 +1,24 @@
 import { execSync } from 'child_process';
 
 import { CommitArgs, RepoKit } from './repo-kit';
-import { isFileChanged } from './utils/file-utils';
-import { parseList } from './utils/string-utils';
+import { FileUtils } from './utils/file-utils';
 
 export interface AppArgs {
   readonly repository: string;
   readonly token: string;
-  readonly commands: string;
-  readonly paths: string;
+  readonly commands: string[];
+  readonly paths: string[];
   readonly branch?: string;
   readonly commitMessage?: string;
   readonly commitToken?: string;
   readonly title?: string;
   readonly body?: string;
-  readonly labels?: string;
-  readonly assignees?: string;
-  readonly reviewers?: string;
-  readonly teamReviewers?: string;
-  readonly milestone?: string;
-  readonly draft?: string;
+  readonly labels?: string[];
+  readonly assignees?: string[];
+  readonly reviewers?: string[];
+  readonly teamReviewers?: string[];
+  readonly milestone?: number;
+  readonly draft?: boolean;
 }
 
 export const app = async ({
@@ -37,7 +36,7 @@ export const app = async ({
   reviewers,
   teamReviewers,
   milestone,
-  draft
+  draft = false
 }: AppArgs) => {
   try {
     // Prepare
@@ -48,13 +47,13 @@ export const app = async ({
     }
 
     // Run commands
-    parseList(commands).forEach((command) => {
+    commands.forEach((command) => {
       execSync(command);
     });
 
     // Find changed files
-    const changedPaths = parseList(paths).reduce<string[]>((acc, path) => {
-      if (isFileChanged(path)) {
+    const changedPaths = paths.reduce<string[]>((acc, path) => {
+      if (FileUtils.isFileChanged(path)) {
         console.info(`File "${path}" is changed`);
         return [...acc, path];
       }
@@ -122,12 +121,12 @@ export const app = async ({
       baseBranch: defaultBranchName,
       title,
       body,
-      labels: parseList(labels),
-      assignees: parseList(assignees),
-      reviewers: parseList(reviewers),
-      teamReviewers: parseList(teamReviewers),
-      milestone: milestone ? parseInt(milestone, 10) : undefined,
-      draft: draft === 'true'
+      labels,
+      assignees,
+      reviewers,
+      teamReviewers,
+      milestone,
+      draft
     });
 
     console.info(`Pull request has been created at ${pullRequest.html_url}`);

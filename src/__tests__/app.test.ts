@@ -2,21 +2,21 @@ import { execSync } from 'child_process';
 
 import { app } from '../app';
 import { RepoKit } from '../repo-kit';
-import { isFileChanged } from '../utils/file-utils';
-import { asMockedClass, asMockedFunction, expectToBeCalled } from '../utils/test-utils';
-import { PromiseValueType } from '../utils/type-utils';
+import { FileUtils } from '../utils/file-utils';
+import { TestUtils } from '../utils/test-utils';
+import { Awaited } from '../utils/type-utils';
 
 const consoleInfoMock = jest.spyOn(console, 'info');
 const consoleErrorMock = jest.spyOn(console, 'error');
 
 jest.mock('child_process');
-const execSyncMock = asMockedFunction(execSync);
+const execSyncMock = TestUtils.asMockedFunction(execSync);
 
 jest.mock('../utils/file-utils');
-const isFileChangedMock = asMockedFunction(isFileChanged);
+const isFileChangedMock = TestUtils.asMockedFunction(FileUtils.isFileChanged);
 
 jest.mock('../repo-kit');
-const RepoKitMock = asMockedClass(RepoKit);
+const RepoKitMock = TestUtils.asMockedClass(RepoKit);
 
 describe('app', () => {
   const owner = 'owner';
@@ -24,8 +24,8 @@ describe('app', () => {
   const repository = `${owner}/${repositoryName}`;
   const token = 'token';
   const commitToken = 'commit-token';
-  const commands = 'cmd1, cmd2';
-  const paths = 'path1, path2';
+  const commands = ['command1', 'command2'];
+  const paths = ['path1', 'path2'];
   const branch = 'branch';
   const defaultBranch = 'default-branch';
   const defaultBranchSha = 'default-branch-sha';
@@ -34,14 +34,14 @@ describe('app', () => {
   const title = 'pull-request-title';
   const body = 'pull-request-body';
 
-  const labels = 'label1, label2';
-  const assignees = 'assignee1';
-  const reviewers = 'reviewer1, reviewer2, reviewer3';
-  const teamReviewers = 'teamReviewer1';
-  const milestone = '42';
-  const draft = 'true';
+  const labels = ['label1', 'label2'];
+  const assignees = ['assignee1'];
+  const reviewers = ['reviewer1', 'reviewer2', 'reviewer3'];
+  const teamReviewers = ['teamReviewer1'];
+  const milestone = 42;
+  const draft = true;
 
-  const getDefaultBranchResult: PromiseValueType<ReturnType<RepoKit['getDefaultBranch']>> = {
+  const getDefaultBranchResult: Awaited<ReturnType<RepoKit['getDefaultBranch']>> = {
     object: { sha: defaultBranchSha, type: 'type', url: 'utl' },
     name: defaultBranch,
     node_id: 'node_id',
@@ -51,7 +51,7 @@ describe('app', () => {
 
   const createPullRequestResult = {
     html_url: 'html_url'
-  } as PromiseValueType<ReturnType<RepoKit['createPullRequest']>>;
+  } as Awaited<ReturnType<RepoKit['createPullRequest']>>;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -71,12 +71,12 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths })).toBe(0);
 
-    expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
-    expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
+    TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
     expect(RepoKitMock.mock.instances.length).toBe(0);
 
-    expectToBeCalled(consoleInfoMock, [['No file has been changed']]);
+    TestUtils.expectToBeCalled(consoleInfoMock, [['No file has been changed']]);
   });
 
   /**
@@ -104,17 +104,17 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths })).toBe(0);
 
-    expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
-    expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
+    TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
-    expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
+    TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[defaultBranchArg]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[defaultBranchArg]]);
     expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[defaultBranchArg, defaultBranchSha]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[defaultBranchArg, defaultBranchSha]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
       [
         {
           branch: defaultBranchArg,
@@ -125,7 +125,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
       [
         {
           branch: defaultBranchArg,
@@ -137,7 +137,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(consoleInfoMock, [
+    TestUtils.expectToBeCalled(consoleInfoMock, [
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       [`Branch "${defaultBranchArg}" has been created`],
@@ -169,15 +169,15 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch })).toBe(0);
 
-    expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
-    expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
+    TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
-    expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
+    TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.deleteBranch, [[branch]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.deleteBranch, [[branch]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
     expect(RepoKitMock.mock.instances[0]?.commitFiles.mock.calls[0]?.[0]).toMatchObject({
       branch,
@@ -190,7 +190,7 @@ describe('app', () => {
       baseBranch: defaultBranch
     });
 
-    expectToBeCalled(consoleInfoMock, [
+    TestUtils.expectToBeCalled(consoleInfoMock, [
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" already exists'],
@@ -225,15 +225,15 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch })).toBe(0);
 
-    expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
-    expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
+    TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
-    expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
+    TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
     expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
     expect(RepoKitMock.mock.instances[0]?.commitFile.mock.calls[0]?.[0]).toMatchObject({
       branch,
@@ -246,7 +246,7 @@ describe('app', () => {
       baseBranch: defaultBranch
     });
 
-    expectToBeCalled(consoleInfoMock, [
+    TestUtils.expectToBeCalled(consoleInfoMock, [
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],
       ['Changed files have been committed'],
@@ -280,18 +280,18 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch, commitToken })).toBe(0);
 
-    expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
-    expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
+    TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
-    expectToBeCalled(RepoKitMock, [
+    TestUtils.expectToBeCalled(RepoKitMock, [
       [owner, repositoryName, token],
       [owner, repositoryName, commitToken]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
     expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
     expect(RepoKitMock.mock.instances[1]?.commitFiles.mock.calls[0]?.[0]).toMatchObject({
       branch,
@@ -304,7 +304,7 @@ describe('app', () => {
       baseBranch: defaultBranch
     });
 
-    expectToBeCalled(consoleInfoMock, [
+    TestUtils.expectToBeCalled(consoleInfoMock, [
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],
@@ -332,12 +332,12 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths })).toBe(1);
 
-    expectToBeCalled(execSyncMock, [['cmd1']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1']]);
 
     expect(RepoKitMock.mock.instances.length).toBe(0);
 
     expect(consoleInfoMock).not.toBeCalled();
-    expectToBeCalled(consoleErrorMock, [[error]]);
+    TestUtils.expectToBeCalled(consoleErrorMock, [[error]]);
   });
 
   /**
@@ -363,17 +363,17 @@ describe('app', () => {
 
     expect(await app({ repository, token, commands, paths, branch, commitMessage, title, body })).toBe(0);
 
-    expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
-    expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
+    TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
-    expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
+    TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
     expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
       [
         {
           branch,
@@ -384,7 +384,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
       [
         {
           branch,
@@ -396,7 +396,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(consoleInfoMock, [
+    TestUtils.expectToBeCalled(consoleInfoMock, [
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],
@@ -445,17 +445,17 @@ describe('app', () => {
       })
     ).toBe(0);
 
-    expectToBeCalled(execSyncMock, [['cmd1'], ['cmd2']]);
-    expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
+    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
+    TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
-    expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
+    TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.hasBranch, [[branch]]);
     expect(RepoKitMock.mock.instances[0]?.deleteBranch).not.toBeCalled();
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.getDefaultBranch, [[]]);
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createBranch, [[branch, defaultBranchSha]]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.commitFiles, [
       [
         {
           branch,
@@ -466,7 +466,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
+    TestUtils.expectToBeCalled(RepoKitMock.mock.instances[0]?.createPullRequest, [
       [
         {
           branch,
@@ -483,7 +483,7 @@ describe('app', () => {
       ]
     ]);
 
-    expectToBeCalled(consoleInfoMock, [
+    TestUtils.expectToBeCalled(consoleInfoMock, [
       ['File "path1" is changed'],
       ['File "path2" is changed'],
       ['Branch "branch" has been created'],
@@ -514,7 +514,7 @@ describe('app', () => {
     expect(execSyncMock).not.toBeCalled();
     expect(RepoKitMock.mock.instances.length).toBe(0);
 
-    expectToBeCalled(consoleErrorMock, [
+    TestUtils.expectToBeCalled(consoleErrorMock, [
       ['Error: Repository "wrong" does not have the valid format (owner/repositoryName)']
     ]);
   });
