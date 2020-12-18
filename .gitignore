@@ -4,6 +4,9 @@ node_modules/
 # Build
 build/
 
+# Jest
+coverage/
+
 # Lint Staged
 .lint-staged-temp-tsconfig.json
 

@@ -2,24 +2,17 @@ import { Octokit } from '@octokit/rest';
 import btoa from 'btoa';
 import { readFileSync } from 'fs';
 
-export interface CommitArgs {
-  readonly commitMessage: string;
-  readonly branch: string;
-  readonly baseBranch?: string;
-}
-
-export interface CommitFileArgs extends CommitArgs {
-  readonly path: string;
-}
-
-export interface CommitFilesArgs extends CommitArgs {
+export interface CommitFilesArgs {
   readonly paths: string[];
+  readonly message?: string;
+  readonly branch: string;
+  readonly amend?: boolean;
 }
 
 export interface CreatePullRequestArgs {
   readonly branch: string;
   readonly baseBranch: string;
-  readonly title: string;
+  readonly title?: string;
   readonly body?: string;
   readonly labels?: string[];
   readonly assignees?: string[];
@@ -36,12 +29,6 @@ export class RepoKit {
     this.octokit = new Octokit({
       auth: token
     });
-  }
-
-  withToken<T>(token: string, fn: (repoKit: RepoKit) => T): T {
-    const repoKit = new RepoKit(this.owner, this.repositoryName, token);
-
-    return fn(repoKit);
   }
 
   getRepositoryInfo() {
@@ -83,109 +70,100 @@ export class RepoKit {
     return data;
   }
 
-  async deleteBranch(name: string) {
-    await this.octokit.git.deleteRef({
+  deleteBranch(name: string) {
+    return this.octokit.git.deleteRef({
       ...this.getRepositoryInfo(),
       ref: `heads/${name}`
     });
   }
 
-  async getDefaultBranch() {
+  async getDefaultBranchName() {
     const response = await this.octokit.repos.get(this.getRepositoryInfo());
 
     if (response.status !== 200) {
       throw new Error(`Fetch for the default branch failed with the status code ${response.status}`);
     }
 
-    return this.getBranch(response.data.default_branch);
+    return response.data.default_branch;
   }
 
-  async getFileInfo(path: string, branch?: string) {
-    const response = await this.octokit.repos.getContent({
-      ...this.getRepositoryInfo(),
-      path,
-      ...(branch ? { ref: `heads/${branch}` } : {})
-    });
-
-    if (response.status !== 200) {
-      throw new Error(`Fetch for the requested path failed with the status code ${response.status}`);
-    }
-
-    if (Array.isArray(response.data)) {
-      throw new Error('The requested path is a directory');
-    }
-
-    return response.data;
+  async getDefaultBranch() {
+    return this.getBranch(await this.getDefaultBranchName());
   }
 
-  async tryGetFileInfo(path: string, branch?: string) {
-    try {
-      const fileInfo = await this.getFileInfo(path, branch);
-
-      return { fileInfo };
-    } catch (error) {
-      return { error };
-    }
-  }
-
-  async commitFile({ path, commitMessage, branch, baseBranch = branch }: CommitFileArgs) {
-    const { fileInfo } = await this.tryGetFileInfo(path, baseBranch);
-    const sha = fileInfo?.sha;
-
-    const { data } = await this.octokit.repos.createOrUpdateFileContents({
-      ...this.getRepositoryInfo(),
-      branch,
-      path,
-      sha,
-      message: commitMessage,
-      content: btoa(readFileSync(path))
-    });
-
-    return data;
-  }
-
-  async commitFiles({ paths, commitMessage, branch, baseBranch = branch }: CommitFilesArgs) {
-    const {
-      object: { sha: baseBranchSha }
-    } = await this.getBranch(baseBranch);
-
+  private async createBlobs(paths: string[]) {
     const encoding = 'base64';
     const type = 'blob' as const;
     const mode = '100644' as const;
 
-    const treeBlobs = await Promise.all(
+    return Promise.all(
       paths.map(async (path) => {
         const {
-          data: { sha: blobSha }
+          data: { sha }
         } = await this.octokit.git.createBlob({
           ...this.getRepositoryInfo(),
           content: btoa(readFileSync(path)),
           encoding
         });
 
-        return { type, mode, path, sha: blobSha };
+        return { type, mode, path, sha };
       })
     );
+  }
+
+  private async createCommit(branchSha: string, treeSha: string, message: string | undefined, amend: boolean) {
+    if (amend) {
+      const { data: commit } = await this.octokit.git.getCommit({
+        ...this.getRepositoryInfo(),
+        commit_sha: branchSha
+      });
+
+      const { data } = await this.octokit.git.createCommit({
+        ...this.getRepositoryInfo(),
+        parents: commit.parents.map(({ sha }) => sha),
+        tree: treeSha,
+        message: message || commit.message
+      });
+
+      return data;
+    } else {
+      if (!message) {
+        throw new Error('Commit message is empty');
+      }
+
+      const { data } = await this.octokit.git.createCommit({
+        ...this.getRepositoryInfo(),
+        parents: [branchSha],
+        tree: treeSha,
+        message
+      });
+
+      return data;
+    }
+  }
+
+  async commitFiles({ paths, message, branch, amend = false }: CommitFilesArgs) {
+    const treeBlobs = await this.createBlobs(paths);
+
+    const {
+      object: { sha: branchSha }
+    } = await this.getBranch(branch);
 
     const {
       data: { sha: treeSha }
     } = await this.octokit.git.createTree({
       ...this.getRepositoryInfo(),
       tree: treeBlobs,
-      base_tree: baseBranchSha
+      base_tree: branchSha
     });
 
-    const { data: commit } = await this.octokit.git.createCommit({
-      ...this.getRepositoryInfo(),
-      parents: [baseBranchSha],
-      tree: treeSha,
-      message: commitMessage
-    });
+    const commit = await this.createCommit(branchSha, treeSha, message, amend);
 
     await this.octokit.git.updateRef({
       ...this.getRepositoryInfo(),
       ref: `heads/${branch}`,
-      sha: commit.sha
+      sha: commit.sha,
+      force: amend
     });
 
     return commit;

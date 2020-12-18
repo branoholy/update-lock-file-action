@@ -13,47 +13,50 @@ inputs:
   branch:
     description: A custom branch name.
     required: false
-    default: update-files
-  commit-message:
-    description: A custom commit message.
+    default: 'update-files'
+  delete-branch:
+    description: A flag for deleting the branch if it exists.
     required: false
-    default: Update files
-  commit-token:
-    description: A token that will be used to commit the files instead of `token`.
+    default: 'false'
+  commit.message:
+    description: A commit message. It is required if `commit.amend` is `'false'`.
     required: false
-    default: ''
-  title:
+  commit.amend:
+    description: A flag for amending the last commit.
+    required: false
+    default: 'false'
+  pull-request:
+    description: A flag for creating a pull request.
+    required: false
+    default: 'true'
+  pull-request.title:
     description: A custom pull request title.
     required: false
-    default: ''
-  body:
+  pull-request.body:
     description: A custom pull request body.
     required: false
-    default: ''
-  labels:
+  pull-request.labels:
     description: A comma-separated list of labels.
     required: false
-    default: ''
-  assignees:
+  pull-request.assignees:
     description: A comma-separated list of assignees.
     required: false
-    default: ''
-  reviewers:
+  pull-request.reviewers:
     description: A comma-separated list of reviewers.
     required: false
-    default: ''
-  team-reviewers:
+  pull-request.team-reviewers:
     description: A comma-separated list of team reviewers.
     required: false
-    default: ''
-  milestone:
+  pull-request.milestone:
     description: A milestone number.
     required: false
-    default: ''
-  draft:
+  pull-request.draft:
     description: A flag to create a pull request draft or a regular pull request.
     required: false
-    default: false
+    default: 'false'
+outputs:
+  commit.sha:
+    description: SHA of the new commit
 runs:
   using: node12
   main: dist/index.js

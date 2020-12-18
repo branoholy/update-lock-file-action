@@ -39,6 +39,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commands: 'rm package-lock.json, npm i'
           paths: package-lock.json
+          delete-branch: true
+          commit.message: Update lock file
 ```
 
 ## Current behavior

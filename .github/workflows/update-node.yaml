@@ -32,6 +32,7 @@ jobs:
           commands: npm run node-versions-update && npm i
           paths: '.nvmrc, package.json, package-lock.json'
           branch: deps-update-node
+          delete-branch: true
           commit-message: 'DEPS: Update Node.js'
           commit-token: ${{ secrets.GITHUB_TOKEN }}
           body: |-

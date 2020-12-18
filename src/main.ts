@@ -1,7 +1,37 @@
 import envalid from 'envalid';
 
-import { app } from './app';
+import { app, CommitArgs, PullRequestArgs } from './app';
 import { ActionUtils } from './utils/action-utils';
+
+const getCommitArgs = () => {
+  const commitArgs: CommitArgs = {
+    message: ActionUtils.getInputAsString('commit.message'),
+    amend: ActionUtils.getInputAsBoolean('commit.amend')
+  };
+
+  return commitArgs;
+};
+
+const getPullRequestArgs = () => {
+  const pullRequest = ActionUtils.getInputAsBoolean('pull-request') ?? true;
+
+  if (!pullRequest) {
+    return undefined;
+  }
+
+  const pullRequestArgs: PullRequestArgs = {
+    title: ActionUtils.getInputAsString('pull-request.title'),
+    body: ActionUtils.getInputAsString('pull-request.body'),
+    labels: ActionUtils.getInputAsStrings('pull-request.labels'),
+    assignees: ActionUtils.getInputAsStrings('pull-request.assignees'),
+    reviewers: ActionUtils.getInputAsStrings('pull-request.reviewers'),
+    teamReviewers: ActionUtils.getInputAsStrings('pull-request.team-reviewers'),
+    milestone: ActionUtils.getInputAsInteger('pull-request.milestone'),
+    draft: ActionUtils.getInputAsBoolean('pull-request.draft')
+  };
+
+  return pullRequestArgs;
+};
 
 export const main = async () => {
   try {
@@ -15,16 +45,9 @@ export const main = async () => {
       commands: ActionUtils.getInputAsStrings('commands', { required: true }),
       paths: ActionUtils.getInputAsStrings('paths', { required: true }),
       branch: ActionUtils.getInputAsString('branch'),
-      commitMessage: ActionUtils.getInputAsString('commit-message'),
-      commitToken: ActionUtils.getInputAsString('commit-token'),
-      title: ActionUtils.getInputAsString('title'),
-      body: ActionUtils.getInputAsString('body'),
-      labels: ActionUtils.getInputAsStrings('labels'),
-      assignees: ActionUtils.getInputAsStrings('assignees'),
-      reviewers: ActionUtils.getInputAsStrings('reviewers'),
-      teamReviewers: ActionUtils.getInputAsStrings('team-reviewers'),
-      milestone: ActionUtils.getInputAsInteger('milestone'),
-      draft: ActionUtils.getInputAsBoolean('draft')
+      deleteBranch: ActionUtils.getInputAsBoolean('delete-branch'),
+      commit: getCommitArgs(),
+      pullRequest: getPullRequestArgs()
     });
 
     process.exit(exitCode);
