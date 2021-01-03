@@ -9,6 +9,7 @@ jobs:
   install:
     name: Install dependencies
     runs-on: ubuntu-latest
+    if: github.event.context == 'CI / Status' && github.event.description == 'Starting'
     steps:
       - name: Send CI status (In progress)
         run: >-
