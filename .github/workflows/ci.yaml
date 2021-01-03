@@ -1,34 +1,33 @@
 name: CI
 
-on: [push, pull_request]
+on: status
 
 env:
-  EVENT_SHA: '{"push": "${{ github.sha }}", "pull_request": "${{ github.event.pull_request.head.sha }}"}'
+  COMMIT_SHA: ${{ github.event.commit.sha }}
 
 jobs:
   install:
     name: Install dependencies
     runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'push' ||
-      (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.user.login == 'branoholy-bot'
-      )
     steps:
-      - name: Send initial CI status
+      - name: Send CI status (In progress)
         run: >-
           curl -L -X POST
           -H 'Content-Type: application/json'
-          -H 'Authorization: token ${{ secrets.BRANOHOLY_BOT_TOKEN }}'
+          -H 'Authorization: token ${{ secrets.BRANOHOLY_STATUS_TOKEN }}'
           -d '{
             "state": "pending",
-            "context": "CI / Status summary",
+            "context": "CI / Status",
             "description": "In progress"
           }'
-          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ fromJSON(env.EVENT_SHA)[github.event_name] }}'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ env.COMMIT_SHA }}'
       - name: Checkout
         uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
+      - name: Check lock file version
+        run: >-
+          grep '"lockfileVersion": 2' package-lock.json
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -50,6 +49,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -72,6 +73,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -96,6 +99,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -118,6 +123,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -140,6 +147,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -164,6 +173,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ env.COMMIT_SHA }}
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -177,22 +188,6 @@ jobs:
       - name: Check Node.js versions
         run: npm run node-versions-check
 
-  check-lock-file-version:
-    name: Check lock file version
-    runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'push' ||
-      (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.user.login == 'branoholy-bot'
-      )
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2.3.4
-      - name: Check lock file version
-        run: >-
-          grep '"lockfileVersion": 2' package-lock.json
-
   send-ci-status-summary:
     name: Send CI status summary
     runs-on: ubuntu-latest
@@ -203,16 +198,15 @@ jobs:
       - lint
       - code-ql
       - check-node-versions
-      - check-lock-file-version
     steps:
-      - name: Send CI status summary
+      - name: Send CI status (Done)
         run: >-
           curl -L -X POST
           -H 'Content-Type: application/json'
-          -H 'Authorization: token ${{ secrets.BRANOHOLY_BOT_TOKEN }}'
+          -H 'Authorization: token ${{ secrets.BRANOHOLY_STATUS_TOKEN }}'
           -d '{
             "state": "success",
-            "context": "CI / Status summary",
+            "context": "CI / Status",
             "description": "All checks passed"
           }'
-          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ fromJSON(env.EVENT_SHA)[github.event_name] }}'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ env.COMMIT_SHA }}'

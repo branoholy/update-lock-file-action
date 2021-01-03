@@ -3,7 +3,7 @@ name: Merge PR
 on:
   pull_request_review:
     types: submitted
-  status: {}
+  status:
 
 jobs:
   merge-pr:
@@ -14,7 +14,7 @@ jobs:
         github.event_name == 'pull_request_review' &&
         (
           github.event.pull_request.user.login == 'dependabot[bot]' ||
-          github.event.pull_request.user.login == 'branoholy-bot'
+          github.event.pull_request.user.login == 'github-actions[bot]'
         )
       ) ||
       (
@@ -33,4 +33,4 @@ jobs:
           MERGE_LABELS: ''
           UPDATE_LABELS: autorebase
           UPDATE_METHOD: rebase
-          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

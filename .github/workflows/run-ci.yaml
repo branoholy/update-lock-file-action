@@ -1,0 +1,20 @@
+name: Run CI
+
+on: push
+
+jobs:
+  run-ci:
+    name: Run CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send CI status (Starting)
+        run: >-
+          curl -L -X POST
+          -H 'Content-Type: application/json'
+          -H 'Authorization: token ${{ secrets.BRANOHOLY_STATUS_TOKEN }}'
+          -d '{
+            "state": "pending",
+            "context": "CI / Status",
+            "description": "Starting"
+          }'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}'

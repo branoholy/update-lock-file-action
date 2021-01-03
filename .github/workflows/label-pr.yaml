@@ -25,4 +25,4 @@ jobs:
         with:
           labels: ${{ fromJSON(env.LABELS)[true] }}
         env:
-          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
