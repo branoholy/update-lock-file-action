@@ -25,13 +25,24 @@ jobs:
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit == false
         run: npm ci
-      - name: Update dist
+      - id: update-dist
+        name: Update dist
         uses: branoholy/update-files-action@develop
         with:
-          token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commands: 'npm run build:dist'
           paths: 'dist/index.js, dist/index.js.LICENSE.txt'
           branch: build-update-dist
           commit-message: 'BUILD: Update dist'
-          commit-token: ${{ secrets.GITHUB_TOKEN }}
           body: Automatic update of `dist/index.js`.
+      - name: Send CI status (Starting)
+        run: >-
+          curl -L -X POST
+          -H 'Content-Type: application/json'
+          -H 'Authorization: token ${{ secrets.BRANOHOLY_STATUS_TOKEN }}'
+          -d '{
+            "state": "pending",
+            "context": "CI / Status",
+            "description": "Starting"
+          }'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ steps.update-dist.outputs.commit.sha }}'

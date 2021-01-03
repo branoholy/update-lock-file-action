@@ -25,15 +25,15 @@ jobs:
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit == false
         run: npm ci
-      - name: Update Node.js
+      - id: update-node
+        name: Update Node.js
         uses: branoholy/update-files-action@develop
         with:
-          token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commands: npm run node-versions-update && npm i
           paths: '.nvmrc, package.json, package-lock.json'
           branch: deps-update-node
           commit-message: 'DEPS: Update Node.js'
-          commit-token: ${{ secrets.GITHUB_TOKEN }}
           body: |-
             Automatic update of Node.js versions.
 
@@ -49,3 +49,14 @@ jobs:
             ```
           labels: dependencies
           reviewers: branoholy
+      - name: Send CI status (Starting)
+        run: >-
+          curl -L -X POST
+          -H 'Content-Type: application/json'
+          -H 'Authorization: token ${{ secrets.BRANOHOLY_STATUS_TOKEN }}'
+          -d '{
+            "state": "pending",
+            "context": "CI / Status",
+            "description": "Starting"
+          }'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ steps.update-node.outputs.commit.sha }}'
