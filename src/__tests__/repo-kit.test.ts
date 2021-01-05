@@ -33,31 +33,7 @@ type MockedOctokit = {
 
 type OctokitMockType = jest.MockInstance<MockedOctokit, ConstructorParameters<typeof Octokit>> & typeof Octokit;
 
-jest.mock('@octokit/rest', () => ({
-  Octokit: jest.fn(function (this: MockedOctokit) {
-    this.git = {
-      createRef: jest.fn(),
-      deleteRef: jest.fn(),
-      getRef: jest.fn(),
-      createBlob: jest.fn(),
-      createTree: jest.fn(),
-      getCommit: jest.fn(),
-      createCommit: jest.fn(),
-      updateRef: jest.fn()
-    };
-    this.issues = {
-      update: jest.fn()
-    };
-    this.pulls = {
-      create: jest.fn(),
-      requestReviewers: jest.fn()
-    };
-    this.repos = {
-      get: jest.fn()
-    };
-  })
-}));
-
+jest.mock('@octokit/rest');
 const OctokitMock = Octokit as OctokitMockType;
 
 describe('RepoKit', () => {
@@ -98,31 +74,42 @@ describe('RepoKit', () => {
     url: 'url'
   };
 
-  const commit = {
-    author: { date: 'data', email: 'email', name: 'name' },
-    committer: { date: 'date', email: 'email', name: 'name' },
-    html_url: 'html_url',
-    message: 'message',
-    node_id: 'node_id',
-    parents: [],
-    sha: 'commit-sha',
-    tree: { sha: 'tree-sha', url: '' },
-    url: 'url',
-    verification: {
-      // @ts-ignore Wrong typing in @octokit/rest for payload
-      payload: null as string,
-      reason: 'unsigned',
-      // @ts-ignore Wrong typing in @octokit/rest for signature
-      signature: null as string,
-      verified: false
+  const octokitMock: MockedOctokit = {
+    git: {
+      createRef: jest.fn(),
+      deleteRef: jest.fn(),
+      getRef: jest.fn(),
+      createBlob: jest.fn(),
+      createTree: jest.fn(),
+      getCommit: jest.fn(),
+      createCommit: jest.fn(),
+      updateRef: jest.fn()
+    },
+    issues: {
+      update: jest.fn()
+    },
+    pulls: {
+      create: jest.fn(),
+      requestReviewers: jest.fn()
+    },
+    repos: {
+      get: jest.fn()
     }
   };
 
   let repoKit: RepoKit;
 
   beforeEach(() => {
-    readFileSyncMock.mockClear();
-    OctokitMock.mockClear();
+    jest.resetAllMocks();
+
+    OctokitMock.mockImplementation(function (this: MockedOctokit) {
+      this.git = octokitMock.git;
+      this.issues = octokitMock.issues;
+      this.pulls = octokitMock.pulls;
+      this.repos = octokitMock.repos;
+
+      return this;
+    });
 
     repoKit = new RepoKit(owner, repo, token);
   });
@@ -135,7 +122,7 @@ describe('RepoKit', () => {
 
   describe('getRepositoryInfo', () => {
     it('should return repository info set in the constructor', () => {
-      expect(repoKit.getRepositoryInfo()).toEqual(repositoryInfo);
+      expect(repoKit.getRepositoryInfo()).toStrictEqual(repositoryInfo);
     });
   });
 
@@ -149,7 +136,7 @@ describe('RepoKit', () => {
       expect(getBranchMock).toBeCalledWith(name);
     });
 
-    it('should return false if the input is a non-existing branch', async () => {
+    it('should return false if the input is a non-existing branch (an Error is thrown)', async () => {
       const getBranchMock = jest.spyOn(repoKit, 'getBranch').mockImplementation(() => {
         throw new Error();
       });
@@ -163,19 +150,19 @@ describe('RepoKit', () => {
     const name = 'branch';
 
     it('should return branch if the input is an existing branch', async () => {
-      const getRefMock = OctokitMock.mock.instances[0]?.git.getRef?.mockResolvedValue({ ...response200, data: ref });
+      octokitMock.git.getRef.mockResolvedValue({ ...response200, data: ref });
 
       expect(await repoKit.getBranch(name)).toEqual({ name, ...ref });
-      expect(getRefMock).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
+      expect(octokitMock.git.getRef).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
     });
 
-    it('should throw an error if the input is a non-existing branch', async () => {
-      const getRefMock = OctokitMock.mock.instances[0]?.git.getRef?.mockImplementation(() => {
+    it('should throw an error if the input is a non-existing branch (an Error is thrown)', async () => {
+      octokitMock.git.getRef.mockImplementation(() => {
         throw new Error();
       });
 
       await expect(repoKit.getBranch(name)).rejects.toBeDefined();
-      expect(getRefMock).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
+      expect(octokitMock.git.getRef).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
     });
   });
 
@@ -184,22 +171,26 @@ describe('RepoKit', () => {
     const sha = 'sha';
 
     it('should return the newly created branch if it was created successfully', async () => {
-      const createRefMock = OctokitMock.mock.instances[0]?.git.createRef?.mockResolvedValue({
+      octokitMock.git.createRef.mockResolvedValue({
         ...response201,
         data: ref
       });
 
       expect(await repoKit.createBranch(name, sha)).toEqual(ref);
-      expect(createRefMock).toBeCalledWith({ ...repositoryInfo, ref: `refs/heads/${name}`, sha });
+      expect(octokitMock.git.createRef).toBeCalledWith({
+        ...repositoryInfo,
+        ref: `refs/heads/${name}`,
+        sha
+      });
     });
 
-    it('should throw an error if it was not created successfully', async () => {
-      const createRefMock = OctokitMock.mock.instances[0]?.git.createRef?.mockImplementation(() => {
+    it('should throw an error if it was not created successfully (an Error was thrown)', async () => {
+      octokitMock.git.createRef.mockImplementation(() => {
         throw new Error();
       });
 
       await expect(repoKit.createBranch(name, sha)).rejects.toBeDefined();
-      expect(createRefMock).toBeCalledWith({ ...repositoryInfo, ref: `refs/heads/${name}`, sha });
+      expect(octokitMock.git.createRef).toBeCalledWith({ ...repositoryInfo, ref: `refs/heads/${name}`, sha });
     });
   });
 
@@ -207,10 +198,8 @@ describe('RepoKit', () => {
     const name = 'branch';
 
     it('should call deleteRef', async () => {
-      const deleteRefMock = OctokitMock.mock.instances[0]?.git.deleteRef;
-
       await repoKit.deleteBranch(name);
-      expect(deleteRefMock).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
+      expect(octokitMock.git.deleteRef).toBeCalledWith({ ...repositoryInfo, ref: `heads/${name}` });
     });
   });
 
@@ -219,22 +208,20 @@ describe('RepoKit', () => {
     const message = 'Fetch for the default branch failed with the status code 301';
 
     it('should return the default branch name', async () => {
-      const getMock = OctokitMock.mock.instances[0]?.repos.get?.mockResolvedValue({
+      octokitMock.repos.get.mockResolvedValue({
         ...response200,
         data: { default_branch: name }
       } as Awaited<ReturnType<Octokit['repos']['get']>>);
 
       expect(await repoKit.getDefaultBranchName()).toEqual(name);
-      expect(getMock).toBeCalledWith(repositoryInfo);
+      expect(octokitMock.repos.get).toBeCalledWith(repositoryInfo);
     });
 
     it('should throw an error if the request has status 301', async () => {
-      const getMock = OctokitMock.mock.instances[0]?.repos.get;
-
-      getMock?.mockResolvedValue((response301 as unknown) as Awaited<ReturnType<typeof getMock>>);
+      octokitMock.repos.get.mockResolvedValue((response301 as unknown) as Awaited<ReturnType<Octokit['repos']['get']>>);
 
       await expect(repoKit.getDefaultBranch()).rejects.toMatchObject({ message });
-      expect(getMock).toBeCalledWith(repositoryInfo);
+      expect(octokitMock.repos.get).toBeCalledWith(repositoryInfo);
     });
   });
 
@@ -255,9 +242,11 @@ describe('RepoKit', () => {
       const getDefaultBranchName = jest.spyOn(repoKit, 'getDefaultBranchName').mockImplementation(() => {
         throw new Error(message);
       });
+      const getBranchMock = jest.spyOn(repoKit, 'getBranch');
 
       await expect(repoKit.getDefaultBranch()).rejects.toMatchObject({ message });
       expect(getDefaultBranchName).toBeCalled();
+      expect(getBranchMock).not.toBeCalled();
     });
   });
 
@@ -270,52 +259,36 @@ describe('RepoKit', () => {
 
     const tree = { sha: 'tree-sha', tree: [], truncated: false, url: '' };
 
-    const mockCommitMethods = () => {
-      const createBlobMock = OctokitMock.mock.instances[0]?.git.createBlob;
-      paths.forEach((_path, index) => {
-        const blob = blobs[index];
-        if (blob === undefined) {
-          throw new Error(`Error: Missing blob data for index ${index}.`);
-        }
-
-        createBlobMock?.mockResolvedValueOnce({ ...response201, data: blob });
-      });
-
-      const getBranchMock = jest.spyOn(repoKit, 'getBranch').mockResolvedValue({ name: branch, ...ref });
-
-      const createTreeMock = OctokitMock.mock.instances[0]?.git.createTree?.mockResolvedValue({
-        ...response201,
-        data: tree
-      });
-
-      const createCommitMock = OctokitMock.mock.instances[0]?.git.createCommit?.mockResolvedValue({
-        ...response201,
-        data: commit
-      });
-
-      const updateRefMock = OctokitMock.mock.instances[0]?.git.updateRef;
-
-      return {
-        createBlobMock,
-        getBranchMock,
-        createTreeMock,
-        createCommitMock,
-        updateRefMock
-      };
+    const commit = {
+      author: { date: 'data', email: 'email', name: 'name' },
+      committer: { date: 'date', email: 'email', name: 'name' },
+      html_url: 'html_url',
+      message: 'message',
+      node_id: 'node_id',
+      parents: [],
+      sha: 'commit-sha',
+      tree: { sha: 'tree-sha', url: '' },
+      url: 'url',
+      verification: {
+        // @ts-ignore Wrong typing in @octokit/rest for payload
+        payload: null as string,
+        reason: 'unsigned',
+        // @ts-ignore Wrong typing in @octokit/rest for signature
+        signature: null as string,
+        verified: false
+      }
     };
 
-    const expectCommitMethods = ({
-      createBlobMock,
-      getBranchMock,
-      createTreeMock
-    }: Pick<ReturnType<typeof mockCommitMethods>, 'createBlobMock' | 'getBranchMock' | 'createTreeMock'>) => {
-      expect(createBlobMock).toBeCalledWith({
+    let getBranchMock: jest.SpyInstance<ReturnType<RepoKit['getBranch']>, Parameters<RepoKit['getBranch']>>;
+
+    const expectCommitMethods = () => {
+      expect(octokitMock.git.createBlob).toBeCalledWith({
         ...repositoryInfo,
         content: 'cmVhZEZpbGUocGF0aDEp', // base64 of "readFile(path1)"
         encoding: 'base64'
       });
 
-      expect(createBlobMock).toBeCalledWith({
+      expect(octokitMock.git.createBlob).toBeCalledWith({
         ...repositoryInfo,
         content: 'cmVhZEZpbGUocGF0aDIp', // base64 "readFile(path2)"
         encoding: 'base64'
@@ -323,7 +296,7 @@ describe('RepoKit', () => {
 
       expect(getBranchMock).toBeCalledWith(branch);
 
-      expect(createTreeMock).toBeCalledWith({
+      expect(octokitMock.git.createTree).toBeCalledWith({
         ...repositoryInfo,
         base_tree: 'sha',
         tree: paths.map((path) => ({
@@ -337,23 +310,71 @@ describe('RepoKit', () => {
 
     beforeEach(() => {
       readFileSyncMock.mockImplementation((path) => `readFile(${path})`);
+
+      paths.forEach((_path, index) => {
+        const blob = blobs[index];
+        if (blob === undefined) {
+          throw new Error(`Error: Missing blob data for index ${index}.`);
+        }
+
+        octokitMock.git.createBlob.mockResolvedValueOnce({ ...response201, data: blob });
+      });
+
+      octokitMock.git.createTree.mockResolvedValue({
+        ...response201,
+        data: tree
+      });
+
+      octokitMock.git.createCommit.mockResolvedValue({
+        ...response201,
+        data: commit
+      });
+
+      getBranchMock = jest.spyOn(repoKit, 'getBranch').mockResolvedValue({ name: branch, ...ref });
     });
 
     it('should call all necessary methods in the correct order', async () => {
-      const { createBlobMock, getBranchMock, createTreeMock, createCommitMock, updateRefMock } = mockCommitMethods();
-
       expect(await repoKit.commitFiles({ paths, message: commitMessage, branch })).toBe(commit);
 
-      expectCommitMethods({ createBlobMock, getBranchMock, createTreeMock });
+      expectCommitMethods();
 
-      expect(createCommitMock).toBeCalledWith({
+      // Use instance[0] to use token for createCommit
+      expect(OctokitMock.mock.instances[0]?.git.createCommit).toBeCalledWith({
         ...repositoryInfo,
         parents: ['sha'],
         tree: tree.sha,
         message: commitMessage
       });
 
-      expect(updateRefMock).toBeCalledWith({
+      expect(octokitMock.git.updateRef).toBeCalledWith({
+        ...repositoryInfo,
+        ref: `heads/${branch}`,
+        sha: commit.sha,
+        force: false
+      });
+    });
+
+    it('should call all necessary methods in the correct order and use a custom token when it is specified', async () => {
+      const commitToken = 'commit-token';
+
+      expect(await repoKit.commitFiles({ paths, message: commitMessage, branch, token: commitToken })).toStrictEqual(
+        commit
+      );
+
+      expectCommitMethods();
+
+      // A new instance of Octokit is created with commitToken
+      expect(OctokitMock.mock.calls[1]?.[0]).toStrictEqual({ auth: commitToken });
+
+      // Use instance[1] to use commitToken for createCommit
+      expect(OctokitMock.mock.instances[1]?.git.createCommit).toBeCalledWith({
+        ...repositoryInfo,
+        parents: ['sha'],
+        tree: tree.sha,
+        message: commitMessage
+      });
+
+      expect(octokitMock.git.updateRef).toBeCalledWith({
         ...repositoryInfo,
         ref: `heads/${branch}`,
         sha: commit.sha,
@@ -362,20 +383,18 @@ describe('RepoKit', () => {
     });
 
     it('should throw an error if the commit message is missing', async () => {
-      const { createBlobMock, getBranchMock, createTreeMock, createCommitMock, updateRefMock } = mockCommitMethods();
+      await expect(repoKit.commitFiles({ paths, branch })).rejects.toMatchObject({
+        message: 'Commit message is empty'
+      });
 
-      await expect(repoKit.commitFiles({ paths, branch })).rejects.toStrictEqual(new Error('Commit message is empty'));
+      expectCommitMethods();
 
-      expectCommitMethods({ createBlobMock, getBranchMock, createTreeMock });
-
-      expect(createCommitMock).not.toBeCalled();
-      expect(updateRefMock).not.toBeCalled();
+      expect(octokitMock.git.createCommit).not.toBeCalled();
+      expect(octokitMock.git.updateRef).not.toBeCalled();
     });
 
     it('should call all necessary methods in the correct order for an amended commit', async () => {
-      const { createBlobMock, getBranchMock, createTreeMock, createCommitMock, updateRefMock } = mockCommitMethods();
-
-      const getCommitMock = OctokitMock.mock.instances[0]?.git.getCommit?.mockResolvedValue({
+      octokitMock.git.getCommit.mockResolvedValue({
         ...response200,
         data: {
           ...commit,
@@ -386,21 +405,21 @@ describe('RepoKit', () => {
 
       expect(await repoKit.commitFiles({ paths, message: commitMessage, branch, amend: true })).toBe(commit);
 
-      expectCommitMethods({ createBlobMock, getBranchMock, createTreeMock });
+      expectCommitMethods();
 
-      expect(getCommitMock).toBeCalledWith({
+      expect(octokitMock.git.getCommit).toBeCalledWith({
         ...repositoryInfo,
         commit_sha: 'sha'
       });
 
-      expect(createCommitMock).toBeCalledWith({
+      expect(octokitMock.git.createCommit).toBeCalledWith({
         ...repositoryInfo,
         parents: ['old-commit-parent-sha'],
         tree: tree.sha,
         message: commitMessage
       });
 
-      expect(updateRefMock).toBeCalledWith({
+      expect(octokitMock.git.updateRef).toBeCalledWith({
         ...repositoryInfo,
         ref: `heads/${branch}`,
         sha: commit.sha,
@@ -409,8 +428,6 @@ describe('RepoKit', () => {
     });
 
     it('should use old commit message if the commit message is missing for an amended commit', async () => {
-      const { createBlobMock, getBranchMock, createTreeMock, createCommitMock, updateRefMock } = mockCommitMethods();
-
       const getCommitMock = OctokitMock.mock.instances[0]?.git.getCommit?.mockResolvedValue({
         ...response200,
         data: {
@@ -422,21 +439,21 @@ describe('RepoKit', () => {
 
       expect(await repoKit.commitFiles({ paths, branch, amend: true })).toBe(commit);
 
-      expectCommitMethods({ createBlobMock, getBranchMock, createTreeMock });
+      expectCommitMethods();
 
       expect(getCommitMock).toBeCalledWith({
         ...repositoryInfo,
         commit_sha: 'sha'
       });
 
-      expect(createCommitMock).toBeCalledWith({
+      expect(octokitMock.git.createCommit).toBeCalledWith({
         ...repositoryInfo,
         parents: ['old-commit-parent-sha'],
         tree: tree.sha,
         message: commit.message
       });
 
-      expect(updateRefMock).toBeCalledWith({
+      expect(octokitMock.git.updateRef).toBeCalledWith({
         ...repositoryInfo,
         ref: `heads/${branch}`,
         sha: commit.sha,

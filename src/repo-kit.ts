@@ -6,6 +6,7 @@ export interface CommitFilesArgs {
   readonly paths: string[];
   readonly message?: string;
   readonly branch: string;
+  readonly token?: string;
   readonly amend?: boolean;
 }
 
@@ -26,9 +27,7 @@ export class RepoKit {
   private octokit: Octokit;
 
   constructor(private owner: string, private repositoryName: string, token: string) {
-    this.octokit = new Octokit({
-      auth: token
-    });
+    this.octokit = new Octokit({ auth: token });
   }
 
   getRepositoryInfo() {
@@ -111,14 +110,22 @@ export class RepoKit {
     );
   }
 
-  private async createCommit(branchSha: string, treeSha: string, message: string | undefined, amend: boolean) {
+  private async createCommit(
+    branchSha: string,
+    treeSha: string,
+    message: string | undefined,
+    token: string | undefined,
+    amend: boolean
+  ) {
+    const commitOctokit = token ? new Octokit({ auth: token }) : this.octokit;
+
     if (amend) {
       const { data: commit } = await this.octokit.git.getCommit({
         ...this.getRepositoryInfo(),
         commit_sha: branchSha
       });
 
-      const { data } = await this.octokit.git.createCommit({
+      const { data } = await commitOctokit.git.createCommit({
         ...this.getRepositoryInfo(),
         parents: commit.parents.map(({ sha }) => sha),
         tree: treeSha,
@@ -131,7 +138,7 @@ export class RepoKit {
         throw new Error('Commit message is empty');
       }
 
-      const { data } = await this.octokit.git.createCommit({
+      const { data } = await commitOctokit.git.createCommit({
         ...this.getRepositoryInfo(),
         parents: [branchSha],
         tree: treeSha,
@@ -142,7 +149,7 @@ export class RepoKit {
     }
   }
 
-  async commitFiles({ paths, message, branch, amend = false }: CommitFilesArgs) {
+  async commitFiles({ paths, message, branch, token, amend = false }: CommitFilesArgs) {
     const treeBlobs = await this.createBlobs(paths);
 
     const {
@@ -157,7 +164,7 @@ export class RepoKit {
       base_tree: branchSha
     });
 
-    const commit = await this.createCommit(branchSha, treeSha, message, amend);
+    const commit = await this.createCommit(branchSha, treeSha, message, token, amend);
 
     await this.octokit.git.updateRef({
       ...this.getRepositoryInfo(),

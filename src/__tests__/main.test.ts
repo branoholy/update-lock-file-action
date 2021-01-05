@@ -32,6 +32,7 @@ describe('main', () => {
   const paths = ['path1', 'path2'];
   const branch = 'branch';
   const commitMessage = 'commit-message';
+  const commitToken = 'commit-token';
 
   const pullRequest: PullRequestArgs = {
     title: 'pull-request-title',
@@ -208,6 +209,9 @@ describe('main', () => {
       if (name === 'commit.message') {
         return commitMessage;
       }
+      if (name === 'commit.token') {
+        return commitToken;
+      }
       if (name === 'pull-request.title') {
         return pullRequest.title;
       }
@@ -260,6 +264,7 @@ describe('main', () => {
           deleteBranch: true,
           commit: {
             message: commitMessage,
+            token: commitToken,
             amend: true
           },
           pullRequest

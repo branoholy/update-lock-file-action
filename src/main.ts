@@ -6,6 +6,7 @@ import { ActionUtils } from './utils/action-utils';
 const getCommitArgs = () => {
   const commitArgs: CommitArgs = {
     message: ActionUtils.getInputAsString('commit.message'),
+    token: ActionUtils.getInputAsString('commit.token'),
     amend: ActionUtils.getInputAsBoolean('commit.amend')
   };
 

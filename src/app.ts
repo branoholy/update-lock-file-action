@@ -77,6 +77,7 @@ const createPullRequest = async (repoKit: RepoKit, branch: string, pullRequestAr
 
 export interface CommitArgs {
   readonly message?: string;
+  readonly token?: string;
   readonly amend?: boolean;
 }
 
