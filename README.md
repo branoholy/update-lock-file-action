@@ -34,6 +34,7 @@ with:
   branch: branch-name
   delete-branch: false
   commit.message: Commit message
+  commit.token: ${{ secrets.ANOTHER_TOKEN }}
   commit.amend: false
   pull-request: true
   pull-request.title: Pull request title

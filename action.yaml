@@ -21,6 +21,10 @@ inputs:
   commit.message:
     description: A commit message. It is required if `commit.amend` is `'false'`.
     required: false
+  commit.token:
+    description: A token that will be used to commit the files instead of token.
+    required: false
+    default: ''
   commit.amend:
     description: A flag for amending the last commit.
     required: false
