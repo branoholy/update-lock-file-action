@@ -27,7 +27,7 @@ type MockedOctokit = {
     [fn in 'create' | 'requestReviewers']: jest.MockedFunction<ExtractCallable<Octokit['pulls'][fn]>>;
   };
   repos: {
-    [fn in 'get']: jest.MockedFunction<ExtractCallable<Octokit['repos'][fn]>>;
+    [fn in 'get' | 'getBranch']: jest.MockedFunction<ExtractCallable<Octokit['repos'][fn]>>;
   };
 };
 
@@ -93,7 +93,8 @@ describe('RepoKit', () => {
       requestReviewers: jest.fn()
     },
     repos: {
-      get: jest.fn()
+      get: jest.fn(),
+      getBranch: jest.fn()
     }
   };
 
@@ -477,11 +478,7 @@ describe('RepoKit', () => {
     const pullRequest = { number: 42 } as Awaited<ReturnType<Octokit['pulls']['create']>>['data'];
 
     it('should call all necessary methods in the correct order', async () => {
-      const createMock = OctokitMock.mock.instances[0]?.pulls.create;
-      const createReviewRequestMock = OctokitMock.mock.instances[0]?.pulls.requestReviewers;
-      const updateMock = OctokitMock.mock.instances[0]?.issues.update;
-
-      createMock?.mockResolvedValue({
+      octokitMock.pulls.create.mockResolvedValue({
         ...response201,
         data: pullRequest
       });
@@ -501,7 +498,7 @@ describe('RepoKit', () => {
         })
       ).toBe(pullRequest);
 
-      expect(createMock).toBeCalledWith({
+      expect(octokitMock.pulls.create).toBeCalledWith({
         ...repositoryInfo,
         base: baseBranch,
         head: branch,
@@ -510,14 +507,77 @@ describe('RepoKit', () => {
         draft
       });
 
-      expect(createReviewRequestMock).toBeCalledWith({
+      expect(octokitMock.pulls.requestReviewers).toBeCalledWith({
         ...repositoryInfo,
         pull_number: pullRequest.number,
         reviewers,
         team_reviewers: teamReviewers
       });
 
-      expect(updateMock).toBeCalledWith({
+      expect(octokitMock.issues.update).toBeCalledWith({
+        ...repositoryInfo,
+        issue_number: pullRequest.number,
+        labels,
+        assignees,
+        milestone
+      });
+    });
+
+    it('should use message of last commit as title when title is not defined', async () => {
+      const message = 'commit-mesage';
+
+      octokitMock.repos.getBranch.mockResolvedValue({
+        ...response200,
+        data: {
+          commit: {
+            commit: {
+              message
+            }
+          }
+        }
+      } as Awaited<ReturnType<Octokit['repos']['getBranch']>>);
+
+      octokitMock.pulls.create.mockResolvedValue({
+        ...response201,
+        data: pullRequest
+      });
+
+      expect(
+        await repoKit.createPullRequest({
+          branch,
+          baseBranch,
+          body,
+          labels,
+          assignees,
+          reviewers,
+          teamReviewers,
+          milestone,
+          draft
+        })
+      ).toBe(pullRequest);
+
+      expect(octokitMock.repos.getBranch).toBeCalledWith({
+        ...repositoryInfo,
+        branch
+      });
+
+      expect(octokitMock.pulls.create).toBeCalledWith({
+        ...repositoryInfo,
+        base: baseBranch,
+        head: branch,
+        title: message,
+        body,
+        draft
+      });
+
+      expect(octokitMock.pulls.requestReviewers).toBeCalledWith({
+        ...repositoryInfo,
+        pull_number: pullRequest.number,
+        reviewers,
+        team_reviewers: teamReviewers
+      });
+
+      expect(octokitMock.issues.update).toBeCalledWith({
         ...repositoryInfo,
         issue_number: pullRequest.number,
         labels,
