@@ -176,6 +176,21 @@ export class RepoKit {
     return commit;
   }
 
+  private async createPullRequestTitle(branch: string, title: string | undefined) {
+    if (title) {
+      return title;
+    }
+
+    const {
+      data: { commit }
+    } = await this.octokit.repos.getBranch({
+      ...this.getRepositoryInfo(),
+      branch
+    });
+
+    return commit.commit.message;
+  }
+
   async createPullRequest({
     branch,
     baseBranch,
@@ -192,7 +207,7 @@ export class RepoKit {
       ...this.getRepositoryInfo(),
       base: baseBranch,
       head: branch,
-      title,
+      title: await this.createPullRequestTitle(branch, title),
       body,
       draft
     });
