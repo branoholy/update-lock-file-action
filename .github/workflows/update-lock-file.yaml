@@ -16,25 +16,14 @@ jobs:
         uses: actions/setup-node@v2.1.4
         with:
           node-version: 15.4.0
-      - id: update-lock-file
-        name: Update lock file
+      - name: Update lock file
         uses: branoholy/update-files-action@develop
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
           commands: 'rm package-lock.json, npm i'
           paths: package-lock.json
           branch: deps-update-lock-file
           commit-message: 'DEPS: Update lock file'
+          commit-token: ${{ secrets.GITHUB_TOKEN }}
           body: Automatic update of dependencies in `package-lock.json`.
           labels: dependencies
-      - name: Send CI status (Starting)
-        run: >-
-          curl -L -X POST
-          -H 'Content-Type: application/json'
-          -H 'Authorization: token ${{ secrets.BRANOHOLY_STATUS_TOKEN }}'
-          -d '{
-            "state": "pending",
-            "context": "CI / Status",
-            "description": "Starting"
-          }'
-          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ steps.update-lock-file.outputs.commit.sha }}'

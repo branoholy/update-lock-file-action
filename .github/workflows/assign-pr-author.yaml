@@ -8,9 +8,9 @@ jobs:
   assign-author:
     name: Assign PR author
     runs-on: ubuntu-latest
-    if: >-
-      github.event.pull_request.user.login != 'dependabot[bot]' &&
-      github.event.pull_request.user.login != 'github-actions[bot]'
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
       - name: Add an assignee
         uses: technote-space/assign-author@v1.5.7
+        with:
+          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
