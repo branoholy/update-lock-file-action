@@ -1,20 +1,11 @@
 name: CI
 
-on: [push, pull_request]
-
-env:
-  EVENT_SHA: '{"push": "${{ github.sha }}", "pull_request": "${{ github.event.pull_request.head.sha }}"}'
+on: push
 
 jobs:
   install:
     name: Install dependencies
     runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'push' ||
-      (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.user.login == 'branoholy-bot'
-      )
     steps:
       - name: Send initial CI status
         run: >-
@@ -26,9 +17,12 @@ jobs:
             "context": "CI / Status summary",
             "description": "In progress"
           }'
-          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ fromJSON(env.EVENT_SHA)[github.event_name] }}'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}'
       - name: Checkout
         uses: actions/checkout@v2.3.4
+      - name: Check lock file version
+        run: >-
+          grep '"lockfileVersion": 2' package-lock.json
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
@@ -177,22 +171,6 @@ jobs:
       - name: Check Node.js versions
         run: npm run node-versions-check
 
-  check-lock-file-version:
-    name: Check lock file version
-    runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'push' ||
-      (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.user.login == 'branoholy-bot'
-      )
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2.3.4
-      - name: Check lock file version
-        run: >-
-          grep '"lockfileVersion": 2' package-lock.json
-
   send-ci-status-summary:
     name: Send CI status summary
     runs-on: ubuntu-latest
@@ -203,7 +181,6 @@ jobs:
       - lint
       - code-ql
       - check-node-versions
-      - check-lock-file-version
     steps:
       - name: Send CI status summary
         run: >-
@@ -215,4 +192,4 @@ jobs:
             "context": "CI / Status summary",
             "description": "All checks passed"
           }'
-          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ fromJSON(env.EVENT_SHA)[github.event_name] }}'
+          'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}'

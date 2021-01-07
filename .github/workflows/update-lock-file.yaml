@@ -24,7 +24,7 @@ jobs:
           paths: package-lock.json
           branch: deps-update-lock-file
           delete-branch: true
-          commit-message: 'DEPS: Update lock file'
-          commit-token: ${{ secrets.GITHUB_TOKEN }}
-          body: Automatic update of dependencies in `package-lock.json`.
-          labels: dependencies
+          commit.message: 'DEPS: Update lock file'
+          commit.token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request.body: Automatic update of dependencies in `package-lock.json`.
+          pull-request.labels: dependencies
