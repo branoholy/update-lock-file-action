@@ -30,22 +30,11 @@ jobs:
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
           commands: npm run node-versions-update && npm i
-          paths: '.nvmrc, package.json, package-lock.json'
+          paths: '.nvmrc, package.json, package-lock.json, .github/workflows/approve-pr.yaml, .github/workflows/ci.yaml, .github/workflows/update-dist.yaml, .github/workflows/update-lock-file.yaml, .github/workflows/update-node.yaml'
           branch: deps-update-node
-          commit-message: 'DEPS: Update Node.js'
-          commit-token: ${{ secrets.GITHUB_TOKEN }}
-          body: |-
-            Automatic update of Node.js versions.
-
-            Run `npm run node-versions-update` to update Node.js versions in workflow files.
-
-            You can use the following commands to update, commit, and push the workflow files.
-
-            ```text
-            npm run node-versions-update
-            git add .github/workflows/
-            git commit -m "DEPS: Update Node.js in workflow files"
-            git push
-            ```
-          labels: dependencies
-          reviewers: branoholy
+          delete-branch: true
+          commit.message: 'DEPS: Update Node.js'
+          commit.token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request.body: Automatic update of Node.js versions.
+          pull-request.labels: dependencies
+          pull-request.reviewers: branoholy

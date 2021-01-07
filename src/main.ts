@@ -1,7 +1,38 @@
 import envalid from 'envalid';
 
-import { app } from './app';
-import { getInput } from './utils/action-utils';
+import { app, CommitArgs, PullRequestArgs } from './app';
+import { ActionUtils } from './utils/action-utils';
+
+const getCommitArgs = () => {
+  const commitArgs: CommitArgs = {
+    message: ActionUtils.getInputAsString('commit.message'),
+    token: ActionUtils.getInputAsString('commit.token'),
+    amend: ActionUtils.getInputAsBoolean('commit.amend')
+  };
+
+  return commitArgs;
+};
+
+const getPullRequestArgs = () => {
+  const pullRequest = ActionUtils.getInputAsBoolean('pull-request') ?? true;
+
+  if (!pullRequest) {
+    return undefined;
+  }
+
+  const pullRequestArgs: PullRequestArgs = {
+    title: ActionUtils.getInputAsString('pull-request.title'),
+    body: ActionUtils.getInputAsString('pull-request.body'),
+    labels: ActionUtils.getInputAsStrings('pull-request.labels'),
+    assignees: ActionUtils.getInputAsStrings('pull-request.assignees'),
+    reviewers: ActionUtils.getInputAsStrings('pull-request.reviewers'),
+    teamReviewers: ActionUtils.getInputAsStrings('pull-request.team-reviewers'),
+    milestone: ActionUtils.getInputAsInteger('pull-request.milestone'),
+    draft: ActionUtils.getInputAsBoolean('pull-request.draft')
+  };
+
+  return pullRequestArgs;
+};
 
 export const main = async () => {
   try {
@@ -11,20 +42,13 @@ export const main = async () => {
 
     const exitCode = await app({
       repository: requiredEnv.GITHUB_REPOSITORY,
-      token: getInput('token', { required: true }),
-      commands: getInput('commands', { required: true }),
-      paths: getInput('paths', { required: true }),
-      branch: getInput('branch'),
-      commitMessage: getInput('commit-message'),
-      commitToken: getInput('commit-token'),
-      title: getInput('title'),
-      body: getInput('body'),
-      labels: getInput('labels'),
-      assignees: getInput('assignees'),
-      reviewers: getInput('reviewers'),
-      teamReviewers: getInput('team-reviewers'),
-      milestone: getInput('milestone'),
-      draft: getInput('draft')
+      token: ActionUtils.getInputAsString('token', { required: true }),
+      commands: ActionUtils.getInputAsStrings('commands', { required: true }),
+      paths: ActionUtils.getInputAsStrings('paths', { required: true }),
+      branch: ActionUtils.getInputAsString('branch'),
+      deleteBranch: ActionUtils.getInputAsBoolean('delete-branch'),
+      commit: getCommitArgs(),
+      pullRequest: getPullRequestArgs()
     });
 
     process.exit(exitCode);

@@ -32,6 +32,7 @@ jobs:
           commands: 'npm run build:dist'
           paths: 'dist/index.js, dist/index.js.LICENSE.txt'
           branch: build-update-dist
-          commit-message: 'BUILD: Update dist'
-          commit-token: ${{ secrets.GITHUB_TOKEN }}
-          body: Automatic update of `dist/index.js`.
+          delete-branch: true
+          commit.message: 'BUILD: Update dist'
+          commit.token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request.body: Automatic update of `dist/index.js`.

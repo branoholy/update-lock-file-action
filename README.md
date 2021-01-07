@@ -19,6 +19,8 @@ with:
   token: ${{ secrets.GITHUB_TOKEN }}
   commands: 'rm package-lock.json, npm i'
   paths: package-lock.json
+  delete-branch: true
+  commit.message: Update lock file
 ```
 
 ### Usage with all arguments
@@ -30,16 +32,19 @@ with:
   commands: 'command-1, command-2'
   paths: 'path/to/file/a.txt, path/to/file/b.txt, path/to/file/c.txt'
   branch: branch-name
-  commit-message: Commit message
-  commit-token: ${{ secrets.ANOTHER_TOKEN }}
-  title: Pull request title
-  body: Pull request body
-  labels: label1, label2
-  assignees: assignee1, assignee2
-  reviewers: reviewer1, reviewer2
-  team-reviewers: team1, team2
-  milestone: 1
-  draft: false
+  delete-branch: false
+  commit.message: Commit message
+  commit.token: ${{ secrets.ANOTHER_TOKEN }}
+  commit.amend: false
+  pull-request: true
+  pull-request.title: Pull request title
+  pull-request.body: Pull request body
+  pull-request.labels: label1, label2
+  pull-request.assignees: assignee1, assignee2
+  pull-request.reviewers: reviewer1, reviewer2
+  pull-request.team-reviewers: team1, team2
+  pull-request.milestone: 1
+  pull-request.draft: false
 ```
 
 ### Example of workflow
@@ -71,21 +76,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commands: 'rm package-lock.json, npm i'
           paths: package-lock.json
+          delete-branch: true
+          commit.message: Update lock file
 ```
 
 ## Inputs
 
-- `token`: A token for committing the updated files and creating the pull request (required).
-- `commands`: A comma-separated list of commands to generate the files specified in `paths` (required).
-- `paths`: A comma-separated list of paths to commit if they were changed (required).
-- `branch`: A custom branch name (default: `'update-files'`).
-- `commit-message`: A custom commit message (default: `'Update files'`).
-- `commit-token`: A token that will be used to commit the files instead of `token` (default: `token`).
-- `title`: A custom pull request title (default: `commit-message`).
-- `body`: A custom pull request body (default: `''`).
-- `labels`: A comma-separated list of labels (default: `''`).
-- `assignees`: A comma-separated list of assignees (default: `''`).
-- `reviewers`: A comma-separated list of reviewers (default: `''`).
-- `team-reviewers`: A comma-separated list of team reviewers (default: `''`).
-- `milestone`: A milestone number (default: `''`).
-- `draft`: A flag to create a pull request draft or a regular pull request (default: `'false'`).
+See the [action.yaml](action.yaml) file.
