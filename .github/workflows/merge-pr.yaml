@@ -21,9 +21,7 @@ jobs:
         github.event_name == 'status' &&
         (
           github.event.commit.author.login == 'dependabot[bot]' ||
-          contains(github.event.branches.*.name, 'deps-update-lock-file') ||
-          contains(github.event.branches.*.name, 'deps-update-node') ||
-          contains(github.event.branches.*.name, 'build-update-dist')
+          github.event.commit.author.login == 'github-actions[bot]'
         )
       )
     steps:
