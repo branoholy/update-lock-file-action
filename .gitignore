@@ -12,6 +12,3 @@ coverage/
 
 # Misc
 etc/
-
-# Stryker
-.stryker-tmp

@@ -12,8 +12,8 @@ const expectToBeCalled = <T extends (...args: any[]) => unknown>(
   fn: jest.MockedFunction<T> | jest.SpiedFunction<T> | undefined,
   params: Parameters<T>[]
 ) => {
-  expect(fn).toBeCalledTimes(params.length);
   params.forEach((param, index) => expect(fn).nthCalledWith(index + 1, ...param));
+  expect(fn).toBeCalledTimes(params.length);
 };
 
 export const TestUtils = {

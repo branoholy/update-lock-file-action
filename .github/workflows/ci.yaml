@@ -59,8 +59,8 @@ jobs:
         env:
           CI: true
 
-  test:
-    name: Test
+  e2e-tests:
+    name: E2E tests
     runs-on: ubuntu-latest
     needs: install
     steps:
@@ -76,12 +76,40 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Test
-        run: npm run test:coverage
+      - name: E2E tests
+        run: npm run test:e2e:coverage
         env:
           CI: true
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v1.2.1
+        with:
+          flags: e2e
+
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: 15.8.0
+      - name: Cache or restore dependencies
+        id: cache-dependencies
+        uses: actions/cache@v2.1.3
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Unit tests
+        run: npm run test:unit:coverage
+        env:
+          CI: true
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v1.2.1
+        with:
+          flags: unit
 
   type-check:
     name: Check types
@@ -176,7 +204,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
-      - test
+      - e2e-tests
+      - unit-tests
       - type-check
       - lint
       - code-ql
