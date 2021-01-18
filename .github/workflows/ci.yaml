@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.5.1
+          node-version: 15.6.0
       - name: Cache or restore dependencies
         id: cache-dependencies
         uses: actions/cache@v2.1.3
@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.5.1
+          node-version: 15.6.0
       - name: Cache or restore dependencies
         id: cache-dependencies
         uses: actions/cache@v2.1.3
@@ -69,7 +69,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.5.1
+          node-version: 15.6.0
       - name: Cache or restore dependencies
         id: cache-dependencies
         uses: actions/cache@v2.1.3
@@ -93,7 +93,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.5.1
+          node-version: 15.6.0
       - name: Cache or restore dependencies
         id: cache-dependencies
         uses: actions/cache@v2.1.3
@@ -115,7 +115,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.5.1
+          node-version: 15.6.0
       - name: Cache or restore dependencies
         id: cache-dependencies
         uses: actions/cache@v2.1.3
@@ -137,7 +137,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.5.1
+          node-version: 15.6.0
       - name: Cache or restore dependencies
         id: cache-dependencies
         uses: actions/cache@v2.1.3
@@ -161,7 +161,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.5.1
+          node-version: 15.6.0
       - name: Cache or restore dependencies
         id: cache-dependencies
         uses: actions/cache@v2.1.3
