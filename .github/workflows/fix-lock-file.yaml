@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: 15.7.0
+          node-version: 15.8.0
       - id: check-lock-file
         name: Check lock file version
         continue-on-error: true
