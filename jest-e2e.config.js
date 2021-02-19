@@ -2,5 +2,5 @@
 
 module.exports = {
   roots: ['<rootDir>/tests/'],
-  coveragePathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/src/utils/test-utils.ts']
+  coveragePathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/tests/', '<rootDir>/src/utils/test-utils.ts']
 };
