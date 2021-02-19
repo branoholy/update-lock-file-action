@@ -2,16 +2,31 @@
 #
 # Approved dependencies
 # ---------------------
+# actions-core-
+#   @actions/core (e2e-tests)
+#
 # babel-
 #   @babel/*, babel-loader (build)
-#   babel-jest (test)
+#   babel-jest (e2e-tests, unit-tests)
 #   @babel/node (check-node-versions)
+#
+# btoa-
+#   btoa (e2e-tests)
+#
+# envalid-
+#   envalid (e2e-tests)
 #
 # eslint-
 #   eslint, eslint-config-*, eslint-plugin-* (lint)
 #
 # jest-
-#   jest (test)
+#   jest (e2e-tests, unit-tests)
+#
+# nock-
+#   nock (e2e-tests)
+#
+# octokit-rest-
+#   @octokit/rest (e2e-tests)
 #
 # prettier-
 #   prettier (lint)
@@ -21,8 +36,7 @@
 #
 # typescript-
 #   typescript (type-check)
-#
-# typescript-eslint-parser-
+#   @typescript-eslint/eslint-plugin (lint)
 #   @typescript-eslint/parser (lint)
 #
 # webpack-
@@ -31,6 +45,7 @@
 # Other dependencies
 # ------------------
 # @actions/core, @octokit/rest, btoa, envalid
+# @stryker-mutator/core, @stryker-mutator/jest-runner
 # diff, lint-staged, node-fetch
 #
 # Approved GitHub Actions
@@ -57,13 +72,17 @@ jobs:
     if: >-
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       (
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-actions-core-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-btoa-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-envalid-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-jest-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-nock-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-octokit-rest-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-prettier-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-') ||
         startsWith(github.head_ref, 'dependabot-github_actions-actions-checkout-') ||
         startsWith(github.head_ref, 'dependabot-github_actions-actions-setup-node-')
