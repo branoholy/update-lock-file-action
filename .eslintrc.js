@@ -15,9 +15,10 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
-    'plugin:json/recommended-with-comments'
+    'plugin:json/recommended-with-comments',
+    'plugin:markdown/recommended'
   ],
-  plugins: ['import', 'simple-import-sort', 'jest', 'markdown'],
+  plugins: ['import', 'simple-import-sort', 'jest'],
   rules: {
     'sort-imports': 'off',
 
