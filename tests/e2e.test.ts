@@ -25,7 +25,10 @@ describe('e2e tests', () => {
   });
 
   afterAll(() => {
+    // Restore E2EMocks
     jest.restoreAllMocks();
+
+    // Fix a memory leak
     Nock.restore();
 
     ChildProcess.execSync(`git reset HEAD ${E2EConstants.testFilesDirectory}`);
