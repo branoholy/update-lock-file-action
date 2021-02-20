@@ -1,0 +1,29 @@
+name: Automatically merge PR
+
+on:
+  pull_request:
+    types: opened
+
+jobs:
+  auto-merge-pr:
+    name: "Auto-merge bot's PR"
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'github-actions[bot]' ||
+      github.event.pull_request.user.login == 'branoholy-bot'
+    steps:
+      - name: Auto-merge pull request
+        uses: octokit/graphql-action@v2.2.20
+        with:
+          query: |
+            mutation enablePullRequestAutoMerge($id: ID!) {
+              enablePullRequestAutoMerge(input: {pullRequestId: $id}) {
+                pullRequest {
+                  id
+                }
+              }
+            }
+          id: ${{ github.event.pull_request.node_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
