@@ -9,13 +9,17 @@ jobs:
     if: >-
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       !(
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-actions-core-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-babel-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-btoa-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-envalid-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-eslint-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-jest-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-nock-') ||
+        startsWith(github.head_ref, 'dependabot-npm_and_yarn-octokit-rest-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-prettier-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-types-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-') ||
-        startsWith(github.head_ref, 'dependabot-npm_and_yarn-typescript-eslint-parser-') ||
         startsWith(github.head_ref, 'dependabot-npm_and_yarn-webpack-') ||
         startsWith(github.head_ref, 'dependabot-github_actions-actions-checkout-') ||
         startsWith(github.head_ref, 'dependabot-github_actions-actions-setup-node-')

@@ -95,19 +95,21 @@ export class RepoKit {
     const type = 'blob' as const;
     const mode = '100644' as const;
 
-    return Promise.all(
-      paths.map(async (path) => {
-        const {
-          data: { sha }
-        } = await this.octokit.git.createBlob({
-          ...this.getRepositoryInfo(),
-          content: btoa(readFileSync(path)),
-          encoding
-        });
+    const blobs = [];
 
-        return { type, mode, path, sha };
-      })
-    );
+    for (const path of paths) {
+      const {
+        data: { sha }
+      } = await this.octokit.git.createBlob({
+        ...this.getRepositoryInfo(),
+        content: btoa(readFileSync(path)),
+        encoding
+      });
+
+      blobs.push({ type, mode, path, sha });
+    }
+
+    return blobs;
   }
 
   private async createCommit(
