@@ -1,4 +1,4 @@
-import envalid from 'envalid';
+import * as envalid from 'envalid';
 
 import { app, CommitArgs, PullRequestArgs } from './app';
 import { ActionUtils } from './utils/action-utils';

@@ -1,4 +1,4 @@
-import envalid from 'envalid';
+import * as envalid from 'envalid';
 
 import { app, PullRequestArgs } from '../app';
 import { main } from '../main';
@@ -47,7 +47,6 @@ describe('main', () => {
 
   const mockEnv = () => {
     envalidMock.str.mockReturnValue({
-      type: 'str',
       _parse: jest.fn()
     });
 
