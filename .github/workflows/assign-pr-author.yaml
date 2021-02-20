@@ -11,6 +11,15 @@ jobs:
     if: github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
       - name: Add an assignee
-        uses: technote-space/assign-author@v1.5.8
+        uses: octokit/graphql-action@v2.2.20
         with:
-          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          query: |
+            mutation addAssigneesToAssignable($id: ID!, $assignee: ID!) {
+              addAssigneesToAssignable(input: {assignableId: $id, assigneeIds: [$assignee]}) {
+                clientMutationId
+              }
+            }
+          id: ${{ github.event.pull_request.node_id }}
+          assignee: ${{ github.event.pull_request.user.node_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

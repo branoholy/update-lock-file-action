@@ -89,9 +89,17 @@ jobs:
       )
     steps:
       - name: Approve pull request
-        uses: hmarr/auto-approve-action@v2.0.0
+        uses: octokit/graphql-action@v2.2.20
         with:
-          github-token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          query: |
+            mutation addPullRequestReview($id: ID!) {
+              addPullRequestReview(input: {pullRequestId: $id, event: APPROVE}) {
+                clientMutationId
+              }
+            }
+          id: ${{ github.event.pull_request.node_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   approve-other-bots-pr:
     name: "Approve other bots' PR"
@@ -105,9 +113,17 @@ jobs:
       )
     steps:
       - name: Approve pull request
-        uses: hmarr/auto-approve-action@v2.0.0
+        uses: octokit/graphql-action@v2.2.20
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          query: |
+            mutation addPullRequestReview($id: ID!) {
+              addPullRequestReview(input: {pullRequestId: $id, event: APPROVE}) {
+                clientMutationId
+              }
+            }
+          id: ${{ github.event.pull_request.node_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   approve-owners-pr:
     name: "Approve owner's PR"
@@ -115,6 +131,14 @@ jobs:
     if: github.event.pull_request.user.login == 'branoholy'
     steps:
       - name: Approve pull request
-        uses: hmarr/auto-approve-action@v2.0.0
+        uses: octokit/graphql-action@v2.2.20
         with:
-          github-token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          query: |
+            mutation addPullRequestReview($id: ID!) {
+              addPullRequestReview(input: {pullRequestId: $id, event: APPROVE}) {
+                clientMutationId
+              }
+            }
+          id: ${{ github.event.pull_request.node_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

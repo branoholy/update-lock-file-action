@@ -30,11 +30,10 @@ jobs:
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
           commands: npm run node-versions-update && npm i
-          paths: '.nvmrc, package.json, package-lock.json, .github/workflows/approve-pr.yaml, .github/workflows/ci.yaml, .github/workflows/fix-lock-file.yaml, .github/workflows/update-dist.yaml, .github/workflows/update-lock-file.yaml, .github/workflows/update-node.yaml'
+          paths: '.nvmrc, package.json, package-lock.json, .github/workflows/ci.yaml, .github/workflows/update-dist.yaml, .github/workflows/update-lock-file.yaml, .github/workflows/update-node.yaml'
           branch: deps-update-node
           delete-branch: true
           commit.message: 'DEPS: Update Node.js'
           commit.token: ${{ secrets.GITHUB_TOKEN }}
           pull-request.body: Automatic update of Node.js versions.
           pull-request.labels: dependencies
-          pull-request.reviewers: branoholy
