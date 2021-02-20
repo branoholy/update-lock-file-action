@@ -25,8 +25,29 @@ jobs:
         startsWith(github.head_ref, 'dependabot-github_actions-actions-setup-node-')
       )
     steps:
-      - name: Request pull request review
-        uses: kunihiko-t/review-request-action@v0.1.3
+      - name: Get user id
+        id: get-user-id
+        uses: octokit/graphql-action@v2.2.20
         with:
-          repo-token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
-          reviewers: branoholy
+          query: |
+            query getUserId($login: String!) {
+              user(login: $login) {
+                id
+              }
+            }
+          login: branoholy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Request pull request review
+        uses: octokit/graphql-action@v2.2.20
+        with:
+          query: |
+            mutation requestReviews($id: ID!, $user: ID!) {
+              requestReviews(input: {pullRequestId: $id, userIds: [$user]}) {
+                clientMutationId
+              }
+            }
+          id: ${{ github.event.pull_request.node_id }}
+          user: ${{ fromJSON(steps.get-user-id.outputs.data).user.id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

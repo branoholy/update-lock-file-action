@@ -20,9 +20,33 @@ jobs:
       startsWith(github.head_ref, 'release-') ||
       startsWith(github.head_ref, 'repo-')
     steps:
-      - name: Add a label
-        uses: christianvuerings/add-labels@v1.1
+      - name: Get label id
+        id: get-label-id
+        uses: octokit/graphql-action@v2.2.20
         with:
-          labels: ${{ fromJSON(env.LABELS)[true] }}
+          query: |
+            query getLabelId($owner: String!, $repo: String!, $label: String!) {
+              repository(owner: $owner, name: $repo) {
+                label(name: $label) {
+                  id
+                }
+              }
+            }
+          owner: ${{ github.event.repository.owner.login }}
+          repo: ${{ github.event.repository.name }}
+          label: ${{ fromJSON(env.LABELS)[true] }}
         env:
-          GITHUB_TOKEN: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add a label
+        uses: octokit/graphql-action@v2.2.20
+        with:
+          query: |
+            mutation addLabelsToLabelable($id: ID!, $label: ID!) {
+              addLabelsToLabelable(input: {labelableId: $id, labelIds: [$label]}) {
+                clientMutationId
+              }
+            }
+          id: ${{ github.event.pull_request.node_id }}
+          label: ${{ fromJSON(steps.get-label-id.outputs.data).repository.label.id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
