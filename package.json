@@ -10,7 +10,7 @@
   "homepage": "https://github.com/branoholy/update-files-action#readme",
   "license": "MIT",
   "engines": {
-    "node": "15.9.0"
+    "node": "15.10.0"
   },
   "scripts": {
     "build": "webpack --env production",
