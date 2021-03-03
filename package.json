@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@actions/core": "1.2.6",
-    "@octokit/rest": "18.3.1",
+    "@octokit/rest": "18.3.2",
     "btoa": "1.2.1",
     "envalid": "7.0.0"
   },
