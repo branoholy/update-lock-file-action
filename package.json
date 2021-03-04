@@ -76,7 +76,7 @@
     "node-fetch": "2.6.1",
     "prettier": "2.2.1",
     "typescript": "4.2.2",
-    "webpack": "5.24.2",
+    "webpack": "5.24.3",
     "webpack-cli": "4.5.0"
   }
 }
