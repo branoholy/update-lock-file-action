@@ -10,6 +10,20 @@ import { E2EExpects } from './e2e-expects';
 import { E2EMocks } from './e2e-mocks';
 import { GitHubMock } from './github-mock';
 
+jest.mock('child_process', () => {
+  const originalModule = jest.requireActual('child_process');
+
+  return {
+    ...originalModule,
+    execSync: (...[command, options]: Parameters<typeof ChildProcess['execSync']>) => {
+      return originalModule.execSync(command, {
+        ...options,
+        env: process.env
+      });
+    }
+  };
+});
+
 describe('e2e tests', () => {
   let gitHubMock: GitHubMock;
 
@@ -17,6 +31,8 @@ describe('e2e tests', () => {
     Nock.disableNetConnect();
 
     FileSystem.mkdirSync(E2EConstants.testFilesDirectory);
+    FileSystem.mkdirSync(E2EConstants.shellMocksDirectory);
+    process.env.PATH = `${E2EConstants.shellMocksDirectory}:${process.env.PATH}`;
 
     FileSystem.writeFileSync(Path.join(E2EConstants.testFilesDirectory, 'path1'), 'content1');
     FileSystem.writeFileSync(Path.join(E2EConstants.testFilesDirectory, 'path2'), 'content2');
@@ -33,6 +49,7 @@ describe('e2e tests', () => {
 
     ChildProcess.execSync(`git reset HEAD ${E2EConstants.testFilesDirectory}`);
     FileSystem.rmdirSync(E2EConstants.testFilesDirectory, { recursive: true });
+    FileSystem.rmdirSync(E2EConstants.shellMocksDirectory);
   });
 
   beforeEach(() => {
@@ -57,11 +74,15 @@ describe('e2e tests', () => {
         delete process.env[key];
       }
     });
+
+    ChildProcess.execSync(`rm -rf ${E2EConstants.shellMocksDirectory}/*`);
   });
 
   test('flow #1: no file is changed', async () => {
     // No file is changed
-    process.env.INPUT_COMMANDS = `echo -n content1 > ${E2EConstants.testFilesDirectory}/path1, echo -n content2 > ${E2EConstants.testFilesDirectory}/path2`;
+    ChildProcess.execSync(
+      `echo -n content1 > ${E2EConstants.testFilesDirectory}/path1 && echo -n content2 > ${E2EConstants.testFilesDirectory}/path2`
+    );
 
     await main();
     expect(E2EMocks.consoleError).not.toBeCalled();
@@ -77,7 +98,7 @@ describe('e2e tests', () => {
     const branch = E2EConstants.branchDefaultArg;
 
     // All files are changed
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     await main();
     expect(E2EMocks.consoleError).not.toBeCalled();
@@ -101,7 +122,7 @@ describe('e2e tests', () => {
 
   test('flow #3: all files are changed, the branch exists, delete the branch', async () => {
     // All files are changed
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     // Use a custom branch, delete the branch
     process.env.INPUT_BRANCH = E2EConstants.branch;
@@ -137,7 +158,7 @@ describe('e2e tests', () => {
 
   test('flow #4: all files are changed, the branch (ref) exists, do not delete the branch', async () => {
     // All files are changed
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     // Use a custom branch (ref)
     process.env.INPUT_BRANCH = `refs/heads/${E2EConstants.branch}`;
@@ -169,7 +190,7 @@ describe('e2e tests', () => {
 
   test('flow #5: all files are changed, the branch exists, do not delete the branch, do not create a pull request', async () => {
     // All files are changed
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     // Use a custom branch, do not create a pull request
     process.env.INPUT_BRANCH = E2EConstants.branch;
@@ -204,7 +225,7 @@ describe('e2e tests', () => {
 
   test('flow #6: all files are changed, the branch exists, do not delete the branch, amend the commit, do not create a pull request', async () => {
     // All files are changed
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     // Use a custom branch
     process.env.INPUT_BRANCH = E2EConstants.branch;
@@ -244,9 +265,10 @@ describe('e2e tests', () => {
   });
 
   test('flow #7: an exception is thrown', async () => {
-    const command = 'sh -c "exit 1"';
+    FileSystem.writeFileSync(`${E2EConstants.shellMocksDirectory}/wc`, 'exit 1');
+    FileSystem.chmodSync(`${E2EConstants.shellMocksDirectory}/wc`, 0o755);
 
-    process.env.INPUT_COMMANDS = command;
+    const command = 'git diff --shortstat temp-e2e-test-files/path1 | wc -l';
     const error = new Error(`Command failed: ${command}`);
 
     await main();
@@ -262,7 +284,7 @@ describe('e2e tests', () => {
 
   test('flow #8: all files are changed, the branch does not exist, use all custom arguments for the pull request', async () => {
     // All files are changed
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     // Use a custom branch, specify pull request arguments
     process.env.INPUT_BRANCH = E2EConstants.branch;
@@ -298,7 +320,7 @@ describe('e2e tests', () => {
   test('flow #9: wrong repository is used', async () => {
     // A wrong repository is used
     process.env.GITHUB_REPOSITORY = 'wrong';
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     await main();
     expect(E2EMocks.consoleInfo).not.toBeCalled();
@@ -315,7 +337,7 @@ describe('e2e tests', () => {
   test('flow #10: commit message is missing', async () => {
     // The commit message is missing
     process.env['INPUT_COMMIT.MESSAGE'] = '';
-    process.env.INPUT_COMMANDS = E2EConstants.commands;
+    ChildProcess.execSync(E2EConstants.commands);
 
     await main();
     expect(E2EMocks.consoleInfo).not.toBeCalled();

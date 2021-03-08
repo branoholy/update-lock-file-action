@@ -5,13 +5,14 @@ const repositoryName = 'repository-name';
 
 export const E2EConstants = {
   testFilesDirectory,
+  shellMocksDirectory: 'temp-e2e-shell-mocks',
+  commands: `echo cmd1 > ${testFilesDirectory}/path1 && echo cmd2 > ${testFilesDirectory}/path2`,
 
   branchDefaultArg: 'update-files',
 
   repository: `${owner}/${repositoryName}`,
   token: 'token',
 
-  commands: `echo cmd1 > ${testFilesDirectory}/path1, echo cmd2 > ${testFilesDirectory}/path2`,
   paths: `${testFilesDirectory}/path1, ${testFilesDirectory}/path2`,
   branch: 'branch',
 

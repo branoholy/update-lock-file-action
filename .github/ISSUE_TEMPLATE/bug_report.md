@@ -33,11 +33,12 @@ jobs:
         uses: actions/setup-node@v1.4.0
         with:
           node-version: 13.12.0
-      - name: Update lock file
+      - name: Update the lock file
+        run: rm package-lock.json && npm i
+      - name: Create a pull request with the updated file
         uses: branoholy/update-files-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commands: 'rm package-lock.json, npm i'
           paths: package-lock.json
           delete-branch: true
           commit.message: Update lock file

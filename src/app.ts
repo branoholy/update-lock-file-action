@@ -1,16 +1,9 @@
 import * as ActionsCore from '@actions/core';
-import { execSync } from 'child_process';
 
 import { RepoKit } from './repo-kit';
 import { FileUtils } from './utils/file-utils';
 
 const branchRefPrefix = 'refs/heads/';
-
-const runCommands = (commands: string[]) => {
-  commands.forEach((command) => {
-    execSync(command);
-  });
-};
 
 const findChangedFiles = (paths: string[]) => {
   const changedPaths = paths.reduce<string[]>((acc, path) => {
@@ -95,7 +88,6 @@ export interface PullRequestArgs {
 export interface AppArgs {
   readonly repository: string;
   readonly token: string;
-  readonly commands: string[];
   readonly paths: string[];
   readonly branch?: string;
   readonly deleteBranch?: boolean;
@@ -106,7 +98,6 @@ export interface AppArgs {
 export const app = async ({
   repository,
   token,
-  commands,
   paths,
   branch = 'update-files',
   deleteBranch = false,
@@ -126,8 +117,6 @@ export const app = async ({
     if (branch.startsWith(branchRefPrefix)) {
       branch = branch.substr(branchRefPrefix.length);
     }
-
-    runCommands(commands);
 
     const changedPaths = findChangedFiles(paths);
     if (changedPaths.length === 0) {

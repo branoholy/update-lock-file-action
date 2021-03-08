@@ -25,11 +25,12 @@ jobs:
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit == false
         run: npm ci
-      - name: Update Node.js
+      - name: Update Node.js versions
+        run: npm run node-versions-update && npm i
+      - name: Create a pull request with the updated file
         uses: branoholy/update-files-action@develop
         with:
           token: ${{ secrets.BRANOHOLY_BOT_TOKEN }}
-          commands: npm run node-versions-update && npm i
           paths: '.nvmrc, package.json, package-lock.json, .github/workflows/ci.yaml, .github/workflows/update-dist.yaml, .github/workflows/update-lock-file.yaml, .github/workflows/update-node.yaml'
           branch: deps-update-node
           delete-branch: true

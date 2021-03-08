@@ -28,7 +28,6 @@ const ActionUtilsMock = {
 describe('main', () => {
   const repository = 'owner/repository-name';
   const token = 'token';
-  const commands = ['command1', 'command2'];
   const paths = ['path1', 'path2'];
   const branch = 'branch';
   const commitMessage = 'commit-message';
@@ -78,9 +77,6 @@ describe('main', () => {
     });
 
     TestUtils.asMockedFunction(ActionUtilsMock.getInputAsStrings).mockImplementation((name) => {
-      if (name === 'commands') {
-        return commands;
-      }
       if (name === 'paths') {
         return paths;
       }
@@ -98,7 +94,6 @@ describe('main', () => {
     expect(ActionUtilsMock.getInputAsString).toBeCalledWith('branch');
     expect(ActionUtilsMock.getInputAsString).toBeCalledWith('commit.message');
 
-    expect(ActionUtilsMock.getInputAsStrings).toBeCalledWith('commands', { required: true });
     expect(ActionUtilsMock.getInputAsStrings).toBeCalledWith('paths', { required: true });
   };
 
@@ -137,7 +132,6 @@ describe('main', () => {
         {
           repository,
           token,
-          commands,
           paths,
           commit: {
             message: commitMessage
@@ -178,7 +172,6 @@ describe('main', () => {
         {
           repository,
           token,
-          commands,
           paths,
           commit: {
             message: commitMessage
@@ -222,9 +215,6 @@ describe('main', () => {
     });
 
     TestUtils.asMockedFunction(ActionUtilsMock.getInputAsStrings).mockImplementation((name) => {
-      if (name === 'commands') {
-        return commands;
-      }
       if (name === 'paths') {
         return paths;
       }
@@ -257,7 +247,6 @@ describe('main', () => {
         {
           repository,
           token,
-          commands,
           paths,
           branch,
           deleteBranch: true,

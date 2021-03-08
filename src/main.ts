@@ -43,7 +43,6 @@ export const main = async () => {
     const exitCode = await app({
       repository: requiredEnv.GITHUB_REPOSITORY,
       token: ActionUtils.getInputAsString('token', { required: true }),
-      commands: ActionUtils.getInputAsStrings('commands', { required: true }),
       paths: ActionUtils.getInputAsStrings('paths', { required: true }),
       branch: ActionUtils.getInputAsString('branch'),
       deleteBranch: ActionUtils.getInputAsBoolean('delete-branch'),

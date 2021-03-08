@@ -4,9 +4,6 @@ inputs:
   token:
     description: A token for committing the updated files and creating the pull request.
     required: true
-  commands:
-    description: A comma-separated list of commands to generate the files specified in `paths`.
-    required: true
   paths:
     description: A comma-separated list of paths to commit if they were changed.
     required: true

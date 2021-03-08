@@ -30,7 +30,6 @@ describe('app', () => {
   const repository = `${owner}/${repositoryName}`;
   const token = 'token';
 
-  const commands = ['command1', 'command2'];
   const paths = ['path1', 'path2'];
   const branch = 'branch';
 
@@ -52,7 +51,6 @@ describe('app', () => {
   const appArgs: AppArgs = {
     repository,
     token,
-    commands,
     paths,
     commit,
     pullRequest: {}
@@ -103,7 +101,6 @@ describe('app', () => {
 
     TestUtils.expectToBeCalled(consoleInfoMock, [['No file has been changed']]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
 
     // No request to GitHub is made
@@ -129,7 +126,6 @@ describe('app', () => {
       [`Pull request has been created at ${createPullRequestResult.html_url}`]
     ]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
     TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
@@ -189,7 +185,6 @@ describe('app', () => {
       [`Pull request has been created at ${createPullRequestResult.html_url}`]
     ]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
     TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
@@ -246,7 +241,6 @@ describe('app', () => {
       [`Pull request has been created at ${createPullRequestResult.html_url}`]
     ]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
     TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
@@ -302,7 +296,6 @@ describe('app', () => {
       [`Changed files have been committed to ${commitFilesResult.sha}`]
     ]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
     TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
@@ -362,7 +355,6 @@ describe('app', () => {
       [`Changed files have been committed to ${commitFilesResult.sha}`]
     ]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
     TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 
@@ -396,9 +388,7 @@ describe('app', () => {
   it('flow #7: an exception is thrown', async () => {
     const error = new Error('error-message');
 
-    isFileChangedMock.mockReturnValue(false);
-
-    isFileChangedMock.mockImplementationOnce(() => {
+    isFileChangedMock.mockImplementation(() => {
       throw error;
     });
 
@@ -408,7 +398,6 @@ describe('app', () => {
 
     TestUtils.expectToBeCalled(consoleErrorMock, [[error]]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1']]);
 
     // No request to GitHub is made
@@ -435,7 +424,6 @@ describe('app', () => {
       [`Pull request has been created at ${createPullRequestResult.html_url}`]
     ]);
 
-    TestUtils.expectToBeCalled(execSyncMock, [['command1'], ['command2']]);
     TestUtils.expectToBeCalled(isFileChangedMock, [['path1'], ['path2']]);
     TestUtils.expectToBeCalled(RepoKitMock, [[owner, repositoryName, token]]);
 

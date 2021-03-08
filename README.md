@@ -5,7 +5,7 @@
 
 _A GitHub action for updating files._
 
-This GitHub action can update files via custom commands and create a pull request with them.
+This GitHub action can commit changed files to a new or an existing branch and create a pull request with the changes.
 
 ## Usage
 
@@ -14,13 +14,16 @@ This GitHub action can update files via custom commands and create a pull reques
 This example updates `package-lock.json` by executing `npm i`.
 
 ```yaml
-uses: branoholy/update-files-action
-with:
-  token: ${{ secrets.GITHUB_TOKEN }}
-  commands: 'rm package-lock.json, npm i'
-  paths: package-lock.json
-  delete-branch: true
-  commit.message: Update lock file
+steps:
+  - name: Update the lock file
+    run: rm package-lock.json && npm i
+  - name: Create a pull request with the updated file
+    uses: branoholy/update-files-action
+    with:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      paths: package-lock.json
+      delete-branch: true
+      commit.message: Update lock file
 ```
 
 ### Usage with all arguments
@@ -29,7 +32,6 @@ with:
 uses: branoholy/update-files-action
 with:
   token: ${{ secrets.GITHUB_TOKEN }}
-  commands: 'command-1, command-2'
   paths: 'path/to/file/a.txt, path/to/file/b.txt, path/to/file/c.txt'
   branch: branch-name
   delete-branch: false
@@ -70,12 +72,14 @@ jobs:
         uses: actions/setup-node@v1.4.0
         with:
           node-version: 13.12.0
-      - name: Update lock file
+      - name: Update the lock file
+        run: rm package-lock.json && npm i
+      - name: Create a pull request with the updated file
         uses: branoholy/update-files-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commands: 'rm package-lock.json, npm i'
           paths: package-lock.json
+          branch: update-lock-file
           delete-branch: true
           commit.message: Update lock file
 ```
